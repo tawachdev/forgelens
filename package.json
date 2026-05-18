@@ -1,0 +1,52 @@
+{
+  "name": "forgelens",
+  "version": "0.1.0",
+  "description": "Provider-agnostic local-first CLI that scans repositories and generates clean AI coding context files with evidence and confidence.",
+  "type": "module",
+  "bin": {
+    "forgelens": "dist/cli.js"
+  },
+  "main": "dist/cli.js",
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/cli.ts --format esm,cjs --dts --clean --out-dir dist",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "keywords": [
+    "ai",
+    "codex",
+    "cli",
+    "repo",
+    "static-analysis",
+    "nextjs",
+    "typescript",
+    "agent-context"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/placeholder/forgelens.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
+  }
+}
