@@ -1,0 +1,8 @@
+{
+  "name": "stack-clerk",
+  "private": true,
+  "dependencies": {
+    "@clerk/nextjs": "5.0.0",
+    "next": "15.0.0"
+  }
+}

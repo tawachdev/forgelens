@@ -1,0 +1,7 @@
+{
+  "name": "stack-nextauth",
+  "private": true,
+  "dependencies": {
+    "next-auth": "5.0.0"
+  }
+}

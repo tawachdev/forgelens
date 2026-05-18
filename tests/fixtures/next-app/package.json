@@ -1,0 +1,21 @@
+{
+  "name": "fixture-next-app",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "15.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "@prisma/client": "6.0.0",
+    "@supabase/supabase-js": "2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.7.0",
+    "prisma": "6.0.0",
+    "drizzle-orm": "0.36.0"
+  }
+}

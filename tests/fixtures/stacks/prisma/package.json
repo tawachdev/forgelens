@@ -1,0 +1,8 @@
+{
+  "name": "stack-prisma",
+  "private": true,
+  "dependencies": {
+    "@prisma/client": "6.0.0",
+    "prisma": "6.0.0"
+  }
+}

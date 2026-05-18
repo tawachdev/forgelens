@@ -1,0 +1,7 @@
+{
+  "name": "stack-jwt-session",
+  "private": true,
+  "dependencies": {
+    "jsonwebtoken": "9.0.0"
+  }
+}
