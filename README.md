@@ -5,6 +5,7 @@ ForgeLens is a local-first CLI that scans a codebase and generates clean reposit
 ## Status
 
 - ForgeLens is currently `v0.1.0`.
+- ForgeLens is published on npm.
 - It is a local-first CLI for deterministic static analysis.
 - It is useful for generating AI repo context before edits.
 - It is not a full semantic analyzer.
@@ -66,16 +67,17 @@ Auth/provider signals:
 
 ## Install
 
-ForgeLens is not published to npm yet. After npm release, install with:
-
-```bash
-npm install -g forgelens
-```
-
-After npm release, use without global install:
+Quick start (no global install):
 
 ```bash
 npx forgelens scan
+```
+
+Global install:
+
+```bash
+npm install -g forgelens
+forgelens scan
 ```
 
 Local development usage:
