@@ -1,5 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { runScan } from "../src/scan.js";
@@ -16,11 +15,8 @@ afterEach(async () => {
 
 describe("runScan", () => {
   it("generates all markdown context files for a Next.js fixture", async () => {
-    const outParent = await mkdtemp(join(tmpdir(), "forgelens-test-"));
-    createdDirs.push(outParent);
-
     const fixtureRoot = join(process.cwd(), "tests/fixtures/next-app");
-    const outDir = join(outParent, ".forgelens");
+    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-test");
 
     const result = await runScan({
       root: fixtureRoot,
@@ -69,11 +65,8 @@ describe("runScan", () => {
   });
 
   it("adds specific risk warnings when middleware is missing and server actions exist", async () => {
-    const outParent = await mkdtemp(join(tmpdir(), "forgelens-risk-test-"));
-    createdDirs.push(outParent);
-
     const fixtureRoot = join(process.cwd(), "tests/fixtures/next-app-no-middleware");
-    const outDir = join(outParent, ".forgelens");
+    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-risk-test");
 
     const result = await runScan({
       root: fixtureRoot,
@@ -94,11 +87,8 @@ describe("runScan", () => {
   });
 
   it("warns when auth is unknown/custom and never leaks env secret values", async () => {
-    const outParent = await mkdtemp(join(tmpdir(), "forgelens-auth-risk-test-"));
-    createdDirs.push(outParent);
-
     const fixtureRoot = join(process.cwd(), "tests/fixtures/stacks/prisma");
-    const outDir = join(outParent, ".forgelens");
+    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-auth-risk-test");
 
     const result = await runScan({
       root: fixtureRoot,
@@ -113,4 +103,23 @@ describe("runScan", () => {
     const securityRules = await readFile(result.files.SECURITY_RULES, "utf8");
     expect(securityRules).not.toContain("SUPER_SECRET");
   });
+
+  it("rejects output folders outside the selected root", async () => {
+    const fixtureRoot = join(process.cwd(), "tests/fixtures/next-app");
+
+    await expect(
+      runScan({
+        root: fixtureRoot,
+        outDir: join(process.cwd(), ".tmp/outside-root"),
+        format: "markdown",
+        verbose: false
+      })
+    ).rejects.toThrow("Output folder must be inside the selected root folder.");
+  });
 });
+
+function createFixtureOutDir(fixtureRoot: string, prefix: string): { outDir: string } {
+  const outDir = `.tmp/${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  createdDirs.push(join(fixtureRoot, outDir));
+  return { outDir };
+}

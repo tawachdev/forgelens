@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { isAbsolute, relative, resolve } from "node:path";
 import { detectAuth } from "./detectors/auth.js";
 import { detectDatabase } from "./detectors/database.js";
 import { detectProject } from "./detectors/project.js";
@@ -40,11 +40,15 @@ export async function runScan(options: ScanOptions): Promise<{
   const rootAbsolute = resolve(options.root);
   const outDirAbsolute = resolve(rootAbsolute, options.outDir);
 
-  const report = await scanRepo(rootAbsolute, options.outDir);
-
   if (options.format !== "markdown") {
     throw new Error(`Unsupported format: ${options.format}`);
   }
+
+  if (!isPathInsideRoot(rootAbsolute, outDirAbsolute)) {
+    throw new Error("Output folder must be inside the selected root folder.");
+  }
+
+  const report = await scanRepo(rootAbsolute, options.outDir);
 
   const files = await writeMarkdownReports(report, outDirAbsolute);
 
@@ -53,4 +57,9 @@ export async function runScan(options: ScanOptions): Promise<{
     files,
     outDirAbsolute
   };
+}
+
+function isPathInsideRoot(root: string, target: string): boolean {
+  const pathFromRoot = relative(root, target);
+  return pathFromRoot !== "" && !pathFromRoot.startsWith("..") && !isAbsolute(pathFromRoot);
 }
