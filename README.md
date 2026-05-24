@@ -26,9 +26,14 @@ ForgeLens solves this by producing deterministic Markdown context from static an
 ## What ForgeLens does
 
 - Scans repository in read-only mode
-- Detects project signals (framework, routes, server actions, database, auth, middleware, env files)
+- Detects project signals (framework, routes, server actions, database, auth, middleware, env files, UI/UX, performance risks)
 - Classifies database/auth detections with confidence (`high`, `medium`, `low`)
 - Shows evidence files for each detected signal
+- Generates an `AI_FOCUS_MAP.md` so agents know what to read first
+- Generates an `AI_COMPACT_CONTEXT.md` for context-limit situations
+- Scores the top focus files by static risk signals
+- Flags env/config drift using env key names only, never secret values
+- Can write tool-readable JSON with `--format json` or `--format all`
 - Writes context files to output folder only (default `.forgelens/`)
 
 ## Supported signals/providers
@@ -102,6 +107,8 @@ forgelens prompt codex
 
 ```bash
 forgelens scan --root . --out .forgelens --format markdown --verbose
+forgelens scan --root . --out .forgelens --format json
+forgelens scan --root . --out .forgelens --format all
 forgelens doctor --root . --out .forgelens
 forgelens clean --root . --out .forgelens --yes
 forgelens prompt codex
@@ -117,7 +124,16 @@ Inside `.forgelens/`:
 - `DATABASE_MAP.md`
 - `SERVER_ACTIONS_MAP.md`
 - `SECURITY_RULES.md`
+- `ENV_REPORT.md`
+- `AI_FOCUS_MAP.md`
+- `AI_COMPACT_CONTEXT.md`
+- `UI_UX_REPORT.md`
+- `PERFORMANCE_RISK_REPORT.md`
 - `RISK_REPORT.md`
+
+With `--format json` or `--format all`:
+
+- `REPO_REPORT.json`
 
 ## Sample output (short)
 
@@ -142,6 +158,34 @@ Example from `SECURITY_RULES.md`:
 - `.env.local`
 ```
 
+Example from `AI_FOCUS_MAP.md`:
+
+```md
+| Priority | Area | Why it matters | Files |
+|---|---|---|---|
+| high | Auth and sessions | Review login, roles, and access boundaries before changing protected behavior. | `middleware.ts`, `lib/auth.ts` |
+
+## Top Files
+| Priority | Score | File | Reasons |
+|---|---:|---|---|
+| high | 65 | `app/admin/actions.ts` | server action; admin route |
+```
+
+Example from `AI_COMPACT_CONTEXT.md`:
+
+```md
+## Top Files
+- `app/admin/actions.ts`
+- `app/api/orders/route.ts`
+```
+
+Example from `ENV_REPORT.md`:
+
+```md
+## Referenced Keys Missing From Examples
+- `NEXT_PUBLIC_SUPABASE_URL`
+```
+
 Example from `RISK_REPORT.md`:
 
 ```md
@@ -160,7 +204,7 @@ Example from `RISK_REPORT.md`:
 
 - Source code is never modified by scan/doctor.
 - ForgeLens writes only in the selected output folder.
-- Env file names can be reported, but secret values are never printed.
+- Env file names and env key names can be reported, but secret values are never printed.
 - No network/API calls are required for detection.
 
 ## Limitations

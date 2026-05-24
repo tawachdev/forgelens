@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `AI_FOCUS_MAP.md` to rank the highest-value files and areas before editing.
+- `AI_COMPACT_CONTEXT.md` for context-limit situations.
+- `ENV_REPORT.md` for env file names, referenced env key names, missing example keys, and public env risk hints without printing secret values.
+- `UI_UX_REPORT.md` for pages, components, forms, loading/empty/error states, responsive signals, and accessibility risk hints.
+- `PERFORMANCE_RISK_REPORT.md` for large files, client components, image usage, fetch calls, uncached fetch hints, and external API failure points.
+- `REPO_REPORT.json` with `--format json` or `--format all` for tool-readable output.
+- File-level focus scores with reasons and priority.
+- Project-specific `AGENTS.md` and `docs/PROJECT_MAP.md` for faster future agent work.
+
+### Changed
+
+- `forgelens prompt codex` now starts with `AI_COMPACT_CONTEXT.md` for tight context and includes the new reports.
+- `FORGE_CONTEXT.md`, `ARCHITECTURE_MAP.md`, and `RISK_REPORT.md` include the new focus, env, UI/UX, and performance signals.
+- Detector scans ignore test fixtures by default and avoid treating detector/test text as real app provider evidence.
+
 ## 0.1.0 - 2026-05-18
 
 Initial CLI MVP release-readiness baseline.
