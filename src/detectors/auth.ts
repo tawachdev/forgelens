@@ -31,16 +31,25 @@ export async function detectAuth(root: string, outDir: string): Promise<AuthInfo
     ...Object.keys(pkg?.devDependencies ?? {})
   ]);
 
-  const codeIndex = await indexCode(root, codeFiles);
+  const evidenceAuthFiles = authFiles.filter(isEvidenceCodeFile);
+  const codeIndex = await indexCode(root, codeFiles.filter(isEvidenceCodeFile));
   const providers: DetectionSignal[] = [];
 
-  pushProvider(providers, detectProvider("clerk", deps.has("@clerk/nextjs"), findFiles(codeIndex, /clerk/i), "Clerk dependency or files"));
+  pushProvider(
+    providers,
+    detectProvider(
+      "clerk",
+      deps.has("@clerk/nextjs"),
+      findFiles(codeIndex, /@clerk\/|clerkMiddleware|currentUser\(|auth\(\)/),
+      "Clerk dependency or usage"
+    )
+  );
   pushProvider(
     providers,
     detectProvider(
       "nextauth-authjs",
       deps.has("next-auth") || deps.has("@auth/core") || deps.has("@auth/nextjs"),
-      findFiles(codeIndex, /next-auth|\bNextAuth\b|@auth\//),
+      findFiles(codeIndex, /next-auth|\bNextAuth\(|@auth\//),
       "Auth.js/NextAuth dependency or imports"
     )
   );
@@ -49,7 +58,7 @@ export async function detectAuth(root: string, outDir: string): Promise<AuthInfo
     detectProvider(
       "supabase-auth",
       deps.has("@supabase/supabase-js"),
-      findFiles(codeIndex, /supabase\.auth|@supabase\/supabase-js|supabase/i),
+      findFiles(codeIndex, /supabase\.auth|@supabase\/supabase-js|createServerClient|createBrowserClient/),
       "Supabase auth SDK usage"
     )
   );
@@ -58,17 +67,22 @@ export async function detectAuth(root: string, outDir: string): Promise<AuthInfo
     detectProvider(
       "firebase-auth",
       deps.has("firebase") || deps.has("firebase-admin") || deps.has("@google-cloud/firestore"),
-      findFiles(codeIndex, /firebase|firestore|getAuth\(|admin\.auth\(/i),
+      findFiles(codeIndex, /from ["']firebase\/auth|getAuth\(|admin\.auth\(/i),
       "Firebase auth SDK usage"
     )
   );
   pushProvider(
     providers,
-    detectProvider("lucia", deps.has("lucia"), findFiles(codeIndex, /lucia/i), "Lucia dependency or usage")
+    detectProvider("lucia", deps.has("lucia"), findFiles(codeIndex, /from ["']lucia|new Lucia\(/), "Lucia dependency or usage")
   );
   pushProvider(
     providers,
-    detectProvider("better-auth", deps.has("better-auth"), findFiles(codeIndex, /better-auth/i), "Better Auth dependency or usage")
+    detectProvider(
+      "better-auth",
+      deps.has("better-auth"),
+      findFiles(codeIndex, /better-auth|betterAuth\(/),
+      "Better Auth dependency or usage"
+    )
   );
 
   const jwtFiles = findFiles(codeIndex, /\bjwt\b|jsonwebtoken|jose|sign\(|verify\(/i);
@@ -104,11 +118,11 @@ export async function detectAuth(root: string, outDir: string): Promise<AuthInfo
   const mergedProviders = uniqueSignals(providers);
   const hasStrongProvider = mergedProviders.some((provider) => provider.name !== "middleware-based-auth");
 
-  if (!hasStrongProvider && authFiles.length > 0) {
+  if (!hasStrongProvider && evidenceAuthFiles.length > 0) {
     mergedProviders.push({
       name: "custom-auth",
       confidence: "low",
-      evidenceFiles: authFiles.slice(0, 12),
+      evidenceFiles: evidenceAuthFiles.slice(0, 12),
       notes: ["Auth-related files found without a clear provider"]
     });
   }
@@ -124,9 +138,9 @@ export async function detectAuth(root: string, outDir: string): Promise<AuthInfo
 
   return {
     providers: uniqueSignals(mergedProviders),
-    files: uniqueSorted(authFiles),
+    files: uniqueSorted(evidenceAuthFiles),
     evidenceFiles: uniqueSorted([
-      ...authFiles,
+      ...evidenceAuthFiles,
       ...middlewareFiles,
       ...envFiles,
       ...mergedProviders.flatMap((provider) => provider.evidenceFiles)
@@ -187,6 +201,10 @@ async function indexCode(
 
 function findFiles(index: Array<{ file: string; text: string }>, pattern: RegExp): string[] {
   return uniqueSorted(index.filter((entry) => pattern.test(entry.text) || pattern.test(entry.file)).map((entry) => entry.file));
+}
+
+function isEvidenceCodeFile(file: string): boolean {
+  return !/(^|\/)(tests?|__tests__|fixtures?)\/|\.test\.|\.spec\.|^src\/detectors\//.test(file);
 }
 
 function uniqueSignals(signals: DetectionSignal[]): DetectionSignal[] {

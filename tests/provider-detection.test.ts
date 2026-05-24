@@ -56,4 +56,25 @@ describe("provider detection", () => {
       expect(["high", "medium", "low"]).toContain(provider.confidence);
     }
   });
+
+  it("does not treat detector or test fixture text as real app providers", async () => {
+    const report = await scanRepo(process.cwd(), ".forgelens");
+
+    expect(report.auth.providers).toEqual([
+      {
+        name: "unknown",
+        confidence: "low",
+        evidenceFiles: [],
+        notes: ["No auth provider signal detected"]
+      }
+    ]);
+    expect(report.database.providers).toEqual([
+      {
+        name: "unknown",
+        confidence: "low",
+        evidenceFiles: [],
+        notes: ["No clear database provider detected"]
+      }
+    ]);
+  });
 });

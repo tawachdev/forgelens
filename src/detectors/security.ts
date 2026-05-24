@@ -20,7 +20,7 @@ export async function detectSecurity(root: string, outDir: string): Promise<Secu
   const sensitiveFiles: string[] = [];
   let envUsageCount = 0;
 
-  for (const file of codeFiles) {
+  for (const file of codeFiles.filter(isEvidenceCodeFile)) {
     const text = await readTextIfExists(join(root, file));
     if (!text) {
       continue;
@@ -89,4 +89,8 @@ function isSensitiveFile(file: string, text: string): boolean {
 
 function uniqueSorted(values: string[]): string[] {
   return [...new Set(values)].sort();
+}
+
+function isEvidenceCodeFile(file: string): boolean {
+  return !/(^|\/)(tests?|__tests__|fixtures?)\/|\.test\.|\.spec\.|^src\/detectors\//.test(file);
 }

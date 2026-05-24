@@ -9,6 +9,8 @@ const DEFAULT_IGNORED_DIRS = [
   "generated"
 ];
 
+const DEFAULT_IGNORED_PATTERNS = ["tests/fixtures/**", "**/tests/fixtures/**"];
+
 export function defaultIgnores(outDir: string): string[] {
   const normalizedOutDir = normalizeOutDir(outDir);
   const core = DEFAULT_IGNORED_DIRS.flatMap((dir) => [
@@ -17,8 +19,8 @@ export function defaultIgnores(outDir: string): string[] {
   ]);
 
   return normalizedOutDir
-    ? [...core, `${normalizedOutDir}/**`, `**/${normalizedOutDir}/**`]
-    : core;
+    ? [...core, ...DEFAULT_IGNORED_PATTERNS, `${normalizedOutDir}/**`, `**/${normalizedOutDir}/**`]
+    : [...core, ...DEFAULT_IGNORED_PATTERNS];
 }
 
 function normalizeOutDir(outDir: string): string {

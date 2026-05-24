@@ -36,9 +36,5 @@ export async function detectServerActions(
 }
 
 function hasUseServerDirective(text: string): boolean {
-  return (
-    text.includes('"use server"') ||
-    text.includes("'use server'") ||
-    text.includes("`use server`")
-  );
+  return /^\s*(?:"use server"|'use server'|`use server`);?\s*$/m.test(text);
 }

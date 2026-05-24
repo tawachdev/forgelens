@@ -51,6 +51,12 @@ export async function detectDatabase(root: string, outDir: string): Promise<Data
     readJsonIfExists<PackageJson>(join(root, "package.json"))
   ]);
 
+  const filteredTypeOrmFiles = typeOrmFiles.filter(isEvidenceFile);
+  const filteredMongoFiles = mongoFiles.filter(isEvidenceFile);
+  const filteredFirebaseFiles = firebaseFiles.filter(isEvidenceFile);
+  const filteredSupabaseFiles = supabaseFiles.filter(isEvidenceFile);
+  const filteredDbClientFiles = dbClientFiles.filter(isEvidenceFile);
+
   const deps = new Set([
     ...Object.keys(pkg?.dependencies ?? {}),
     ...Object.keys(pkg?.devDependencies ?? {})
@@ -76,49 +82,49 @@ export async function detectDatabase(root: string, outDir: string): Promise<Data
     providers,
     "supabase",
     deps.has("@supabase/supabase-js"),
-    supabaseFiles,
+    filteredSupabaseFiles,
     "Supabase SDK and related files"
   );
   addSignal(
     providers,
     "typeorm",
     deps.has("typeorm"),
-    typeOrmFiles,
+    filteredTypeOrmFiles,
     "TypeORM dependency and entity/config files"
   );
   addSignal(
     providers,
     "mongoose-mongodb",
     deps.has("mongoose") || deps.has("mongodb"),
-    mongoFiles,
+    filteredMongoFiles,
     "MongoDB/Mongoose dependency and files"
   );
   addSignal(
     providers,
     "firebase-firestore",
     deps.has("firebase") || deps.has("firebase-admin") || deps.has("@google-cloud/firestore"),
-    firebaseFiles,
+    filteredFirebaseFiles,
     "Firebase/Firestore dependency and files"
   );
   addSignal(
     providers,
     "postgres-client",
     deps.has("pg") || deps.has("postgres") || deps.has("slonik"),
-    dbClientFiles.filter((f) => /postgres|pg/i.test(f)),
+    filteredDbClientFiles.filter((f) => /postgres|pg/i.test(f)),
     "PostgreSQL client dependencies/files"
   );
   addSignal(
     providers,
     "mysql-client",
     deps.has("mysql") || deps.has("mysql2"),
-    dbClientFiles.filter((f) => /mysql/i.test(f)),
+    filteredDbClientFiles.filter((f) => /mysql/i.test(f)),
     "MySQL client dependencies/files"
   );
   addSignal(
     providers,
     "sqlite",
     deps.has("sqlite3") || deps.has("better-sqlite3"),
-    dbClientFiles.filter((f) => /sqlite/i.test(f)),
+    filteredDbClientFiles.filter((f) => /sqlite/i.test(f)),
     "SQLite dependencies/files"
   );
 
@@ -132,7 +138,7 @@ export async function detectDatabase(root: string, outDir: string): Promise<Data
   }
 
   const hasKnownProvider = providers.some((provider) => provider.name !== "sql-migrations");
-  const customLayerFiles = dbClientFiles.filter(
+  const customLayerFiles = filteredDbClientFiles.filter(
     (file) => !/supabase|prisma|drizzle|typeorm|mongo|mongoose|firebase|firestore/i.test(file)
   );
 
@@ -170,11 +176,11 @@ export async function detectDatabase(root: string, outDir: string): Promise<Data
       ...supabaseFiles,
       ...sqlFiles,
       ...migrationFiles,
-      ...dbClientFiles
+      ...filteredDbClientFiles
     ]),
     schemaFiles,
     migrations: uniqueSorted(migrationFiles),
-    clientFiles: uniqueSorted(dbClientFiles),
+    clientFiles: uniqueSorted(filteredDbClientFiles),
     notes: buildDatabaseNotes(uniqueSignals(providers))
   };
 }
@@ -245,4 +251,8 @@ function buildDatabaseNotes(providers: DetectionSignal[]): string[] {
 
 function uniqueSorted(values: string[]): string[] {
   return [...new Set(values)].sort();
+}
+
+function isEvidenceFile(file: string): boolean {
+  return !/(^|\/)(tests?|__tests__|fixtures?)\/|\.test\.|\.spec\.|^src\/detectors\//.test(file);
 }
