@@ -3,6 +3,7 @@
 import { Command } from "commander";
 import { runClean } from "./clean.js";
 import { inspectRepoSafety, renderDoctorReport } from "./doctor.js";
+import { renderDriftReport, runDrift } from "./drift.js";
 import { buildCodexPrompt } from "./prompt.js";
 import { runScan } from "./scan.js";
 import type { OutputFormat, ScanOptions } from "./types.js";
@@ -90,6 +91,39 @@ program
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       console.error(`ForgeLens clean failed: ${message}`);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command("drift")
+  .description("Compare two ForgeLens JSON reports and flag risky context drift")
+  .requiredOption("--baseline <path>", "older .forgelens/REPO_REPORT.json path")
+  .requiredOption("--current <path>", "newer .forgelens/REPO_REPORT.json path")
+  .option("--out <path>", "optional output folder for DRIFT_REPORT files")
+  .addHelpText(
+    "after",
+    "\nExample:\n  forgelens drift --baseline .forgelens/baseline.json --current .forgelens/REPO_REPORT.json --out .forgelens"
+  )
+  .action(async (cmdOptions: { baseline: string; current: string; out?: string }) => {
+    try {
+      const result = await runDrift({
+        baseline: cmdOptions.baseline,
+        current: cmdOptions.current,
+        outDir: cmdOptions.out
+      });
+
+      console.log(renderDriftReport(result.report));
+      if (Object.keys(result.files).length > 0) {
+        console.log("");
+        console.log("ForgeLens drift files written:");
+        for (const [name, filePath] of Object.entries(result.files)) {
+          console.log(`- ${name}: ${filePath}`);
+        }
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error(`ForgeLens drift failed: ${message}`);
       process.exitCode = 1;
     }
   });

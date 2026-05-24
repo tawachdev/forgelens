@@ -126,3 +126,37 @@ export interface RepoReport {
 }
 
 export type GeneratedReportFiles = Record<string, string>;
+
+export type DriftCategory =
+  | "auth"
+  | "routes"
+  | "server-actions"
+  | "database"
+  | "env"
+  | "security"
+  | "focus";
+
+export type DriftSeverity = "high" | "medium" | "low";
+
+export interface DriftChange {
+  category: DriftCategory;
+  severity: DriftSeverity;
+  title: string;
+  added: string[];
+  removed: string[];
+  note: string;
+}
+
+export interface DriftReport {
+  baselinePath: string;
+  currentPath: string;
+  comparedAt: string;
+  changes: DriftChange[];
+  summary: {
+    high: number;
+    medium: number;
+    low: number;
+    total: number;
+  };
+  recommendations: string[];
+}

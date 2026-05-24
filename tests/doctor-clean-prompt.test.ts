@@ -88,6 +88,7 @@ describe("prompt codex", () => {
     expect(prompt).toContain("UI_UX_REPORT.md");
     expect(prompt).toContain("PERFORMANCE_RISK_REPORT.md");
     expect(prompt).toContain("RISK_REPORT.md");
+    expect(prompt).toContain("DRIFT_REPORT.md");
     expect(prompt).toContain("REPO_REPORT.json");
     expect(prompt.toLowerCase()).toContain("before editing");
   });
