@@ -19,11 +19,11 @@ program
   .description("Scan a repository and generate context markdown files")
   .option("--out <path>", "output folder (inside root)", ".forgelens")
   .option("--root <path>", "repository root path", ".")
-  .option("--format <format>", "output format (markdown)", "markdown")
+  .option("--format <format>", "output format (markdown, json, all)", "markdown")
   .option("--verbose", "print scan details", false)
   .addHelpText(
     "after",
-    "\nExamples:\n  forgelens scan\n  forgelens scan --root . --out .forgelens --verbose"
+    "\nExamples:\n  forgelens scan\n  forgelens scan --root . --out .forgelens --verbose\n  forgelens scan --format all"
   )
   .action(async (cmdOptions: { out: string; root: string; format: string; verbose: boolean }) => {
     const options: ScanOptions = {

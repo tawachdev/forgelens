@@ -79,10 +79,16 @@ describe("clean", () => {
 describe("prompt codex", () => {
   it("returns useful prompt text", () => {
     const prompt = buildCodexPrompt();
+    expect(prompt).toContain("AI_COMPACT_CONTEXT.md");
+    expect(prompt).toContain("AI_FOCUS_MAP.md");
     expect(prompt).toContain("FORGE_CONTEXT.md");
     expect(prompt).toContain("ARCHITECTURE_MAP.md");
     expect(prompt).toContain("SECURITY_RULES.md");
+    expect(prompt).toContain("ENV_REPORT.md");
+    expect(prompt).toContain("UI_UX_REPORT.md");
+    expect(prompt).toContain("PERFORMANCE_RISK_REPORT.md");
     expect(prompt).toContain("RISK_REPORT.md");
+    expect(prompt).toContain("REPO_REPORT.json");
     expect(prompt.toLowerCase()).toContain("before editing");
   });
 });

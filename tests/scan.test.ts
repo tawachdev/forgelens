@@ -26,7 +26,7 @@ describe("runScan", () => {
     });
 
     const filePaths = Object.values(result.files);
-    expect(filePaths).toHaveLength(7);
+    expect(filePaths).toHaveLength(12);
 
     for (const filePath of filePaths) {
       const text = await readFile(filePath, "utf8");
@@ -62,6 +62,29 @@ describe("runScan", () => {
     expect(securityRules).toContain("## Admin/security-sensitive areas");
     expect(securityRules).toContain("## Manual verification checklist");
     expect(securityRules).not.toContain("FORGELENS_TEST_PLACEHOLDER");
+
+    const focusMap = await readFile(result.files.AI_FOCUS_MAP, "utf8");
+    expect(focusMap).toContain("# AI_FOCUS_MAP");
+    expect(focusMap).toContain("Auth and sessions");
+    expect(focusMap).toContain("## Top Files");
+    expect(focusMap).toContain("Suggested Read Order");
+
+    const compactContext = await readFile(result.files.AI_COMPACT_CONTEXT, "utf8");
+    expect(compactContext).toContain("# AI_COMPACT_CONTEXT");
+    expect(compactContext).toContain("## Top Files");
+
+    const envReport = await readFile(result.files.ENV_REPORT, "utf8");
+    expect(envReport).toContain("NEXT_PUBLIC_SUPABASE_URL");
+    expect(envReport).toContain("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    expect(envReport).not.toContain("FORGELENS_TEST_PLACEHOLDER");
+
+    const uiUxReport = await readFile(result.files.UI_UX_REPORT, "utf8");
+    expect(uiUxReport).toContain("# UI_UX_REPORT");
+    expect(uiUxReport).toContain("app/dashboard/page.tsx");
+
+    const performanceReport = await readFile(result.files.PERFORMANCE_RISK_REPORT, "utf8");
+    expect(performanceReport).toContain("# PERFORMANCE_RISK_REPORT");
+    expect(performanceReport).toContain("## Client Components");
   });
 
   it("adds specific risk warnings when middleware is missing and server actions exist", async () => {
@@ -102,6 +125,9 @@ describe("runScan", () => {
 
     const securityRules = await readFile(result.files.SECURITY_RULES, "utf8");
     expect(securityRules).not.toContain("SUPER_SECRET");
+
+    const envReport = await readFile(result.files.ENV_REPORT, "utf8");
+    expect(envReport).not.toContain("SUPER_SECRET");
   });
 
   it("rejects output folders outside the selected root", async () => {
@@ -115,6 +141,42 @@ describe("runScan", () => {
         verbose: false
       })
     ).rejects.toThrow("Output folder must be inside the selected root folder.");
+  });
+
+  it("writes tool-readable JSON output when requested", async () => {
+    const fixtureRoot = join(process.cwd(), "tests/fixtures/next-app");
+    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-json-test");
+
+    const result = await runScan({
+      root: fixtureRoot,
+      outDir,
+      format: "json",
+      verbose: false
+    });
+
+    expect(Object.keys(result.files)).toEqual(["REPO_REPORT_JSON"]);
+
+    const jsonText = await readFile(result.files.REPO_REPORT_JSON, "utf8");
+    const parsed = JSON.parse(jsonText) as { focusFiles?: Array<{ file: string; score: number }> };
+
+    expect(parsed.focusFiles?.length).toBeGreaterThan(0);
+    expect(parsed.focusFiles?.[0]?.score).toBeGreaterThan(0);
+    expect(jsonText).not.toContain("FORGELENS_TEST_PLACEHOLDER");
+  });
+
+  it("writes markdown and JSON output together with all format", async () => {
+    const fixtureRoot = join(process.cwd(), "tests/fixtures/next-app");
+    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-all-test");
+
+    const result = await runScan({
+      root: fixtureRoot,
+      outDir,
+      format: "all",
+      verbose: false
+    });
+
+    expect(result.files.AI_FOCUS_MAP).toBeDefined();
+    expect(result.files.REPO_REPORT_JSON).toBeDefined();
   });
 });
 

@@ -13,6 +13,11 @@ export async function writeMarkdownReports(
     DATABASE_MAP: join(outDirAbsolute, "DATABASE_MAP.md"),
     SERVER_ACTIONS_MAP: join(outDirAbsolute, "SERVER_ACTIONS_MAP.md"),
     SECURITY_RULES: join(outDirAbsolute, "SECURITY_RULES.md"),
+    ENV_REPORT: join(outDirAbsolute, "ENV_REPORT.md"),
+    AI_FOCUS_MAP: join(outDirAbsolute, "AI_FOCUS_MAP.md"),
+    AI_COMPACT_CONTEXT: join(outDirAbsolute, "AI_COMPACT_CONTEXT.md"),
+    UI_UX_REPORT: join(outDirAbsolute, "UI_UX_REPORT.md"),
+    PERFORMANCE_RISK_REPORT: join(outDirAbsolute, "PERFORMANCE_RISK_REPORT.md"),
     RISK_REPORT: join(outDirAbsolute, "RISK_REPORT.md")
   };
 
@@ -23,6 +28,11 @@ export async function writeMarkdownReports(
     writeText(files.DATABASE_MAP, renderDatabaseMap(report)),
     writeText(files.SERVER_ACTIONS_MAP, renderServerActionsMap(report)),
     writeText(files.SECURITY_RULES, renderSecurityRules(report)),
+    writeText(files.ENV_REPORT, renderEnvReport(report)),
+    writeText(files.AI_FOCUS_MAP, renderAiFocusMap(report)),
+    writeText(files.AI_COMPACT_CONTEXT, renderAiCompactContext(report)),
+    writeText(files.UI_UX_REPORT, renderUiUxReport(report)),
+    writeText(files.PERFORMANCE_RISK_REPORT, renderPerformanceRiskReport(report)),
     writeText(files.RISK_REPORT, renderRiskReport(report))
   ]);
 
@@ -43,6 +53,15 @@ function renderForgeContext(report: RepoReport): string {
     `- Server actions: ${report.serverActions.count}`,
     `- Database providers: ${signalsSummary(report.database.providers)}`,
     `- Auth providers: ${signalsSummary(report.auth.providers)}`,
+    `- Focus areas: ${report.focus.length}`,
+    `- Top focus files: ${report.focusFiles.length}`,
+    `- Env keys referenced: ${report.env.referencedKeys.length}`,
+    `- UI pages/layout states: ${report.uiUx.pageFiles.length}`,
+    `- Performance risk files: ${uniqueSorted([
+      ...report.performance.largeFiles,
+      ...report.performance.uncachedFetchFiles,
+      ...report.performance.externalApiFiles
+    ]).length}`,
     "",
     "## Package Scripts",
     ...renderKeyValueMap(report.project.scripts)
@@ -62,6 +81,9 @@ function renderArchitectureMap(report: RepoReport): string {
     `- Database: ${report.database.files.length > 0 ? "detected" : "unknown"}`,
     `- Auth: ${hasNonUnknown(report.auth.providers) ? "detected" : "unknown"}`,
     `- Middleware: ${report.security.middlewareFiles.length > 0 ? "detected" : "unknown"}`,
+    `- Env/config: ${report.env.envFiles.length > 0 ? "detected" : "unknown"}`,
+    `- UI/UX files: ${report.uiUx.pageFiles.length + report.uiUx.componentFiles.length}`,
+    `- Performance/failure signals: ${report.performance.notes.length}`,
     "",
     "## Key Files",
     ...renderListWithFallback(
@@ -69,7 +91,8 @@ function renderArchitectureMap(report: RepoReport): string {
         ...report.auth.files,
         ...report.security.middlewareFiles,
         ...report.database.schemaFiles,
-        ...report.serverActions.files
+        ...report.serverActions.files,
+        ...report.focus.flatMap((item) => item.files)
       ]),
       "unknown"
     )
@@ -160,6 +183,158 @@ function renderSecurityRules(report: RepoReport): string {
   ].join("\n");
 }
 
+function renderEnvReport(report: RepoReport): string {
+  return [
+    "# ENV_REPORT",
+    "",
+    "This report lists env file names and env key names only. It never prints secret values.",
+    "",
+    "## Env Files",
+    ...renderListWithFallback(report.env.envFiles, "unknown"),
+    "",
+    "## Example Env Files",
+    ...renderListWithFallback(report.env.exampleFiles, "unknown"),
+    "",
+    "## Referenced Keys",
+    ...renderListWithFallback(report.env.referencedKeys, "unknown"),
+    "",
+    "## Example Keys",
+    ...renderListWithFallback(report.env.exampleKeys, "unknown"),
+    "",
+    "## Referenced Keys Missing From Examples",
+    ...renderListWithFallback(report.env.missingExampleKeys, "none"),
+    "",
+    "## Public Env Keys Requiring Review",
+    ...renderListWithFallback(report.env.publicRiskKeys, "none"),
+    "",
+    "## Client Files With Server Secret-Like Env Usage",
+    ...renderListWithFallback(report.env.serverSecretClientFiles, "none"),
+    "",
+    "## Notes",
+    ...renderPlainListWithFallback(report.env.notes, "unknown")
+  ].join("\n");
+}
+
+function renderAiFocusMap(report: RepoReport): string {
+  return [
+    "# AI_FOCUS_MAP",
+    "",
+    "Read this first before editing. It ranks the files most likely to matter for correctness, safety, UX, or runtime behavior.",
+    "",
+    "| Priority | Area | Why it matters | Files |",
+    "|---|---|---|---|",
+    ...report.focus.map(
+      (item) =>
+        `| ${item.priority} | ${item.area} | ${item.reason} | ${renderInlineEvidence(item.files)} |`
+    ),
+    "",
+    "## Top Files",
+    "| Priority | Score | File | Reasons |",
+    "|---|---:|---|---|",
+    ...renderFocusFileRows(report),
+    "",
+    "## Suggested Read Order",
+    ...renderSuggestedReadOrder(report)
+  ].join("\n");
+}
+
+function renderAiCompactContext(report: RepoReport): string {
+  return [
+    "# AI_COMPACT_CONTEXT",
+    "",
+    "Use this when context is tight. Read only these summaries and top files first.",
+    "",
+    "## Snapshot",
+    `- Framework: ${report.project.framework}`,
+    `- Language: ${report.project.language}`,
+    `- Routes: ${report.routes.length}`,
+    `- API routes: ${report.routes.filter((route) => route.kind === "api").length}`,
+    `- Server actions: ${report.serverActions.count}`,
+    `- Auth: ${signalsSummary(report.auth.providers)}`,
+    `- Database: ${signalsSummary(report.database.providers)}`,
+    `- Env keys referenced: ${report.env.referencedKeys.length}`,
+    "",
+    "## Top Files",
+    ...renderListWithFallback(report.focusFiles.slice(0, 12).map((item) => item.file), "manual review"),
+    "",
+    "## Why These Files",
+    ...renderPlainListWithFallback(
+      report.focusFiles
+        .slice(0, 12)
+        .map((item) => `${item.file}: ${item.priority} priority, score ${item.score}, ${item.reasons.join("; ")}`),
+      "No scored hotspots were detected."
+    ),
+    "",
+    "## Read Next If Needed",
+    "- `AI_FOCUS_MAP.md` for full ranked areas and file scores.",
+    "- `SECURITY_RULES.md` for auth, middleware, and sensitive paths.",
+    "- `RISK_REPORT.md` for manual review unknowns."
+  ].join("\n");
+}
+
+function renderUiUxReport(report: RepoReport): string {
+  return [
+    "# UI_UX_REPORT",
+    "",
+    "## Pages, Layouts, And Route States",
+    ...renderListWithFallback(report.uiUx.pageFiles, "unknown"),
+    "",
+    "## Components",
+    ...renderListWithFallback(report.uiUx.componentFiles, "unknown"),
+    "",
+    "## Forms",
+    ...renderListWithFallback(report.uiUx.formFiles, "none"),
+    "",
+    "## Loading States",
+    ...renderListWithFallback(report.uiUx.loadingStateFiles, "none"),
+    "",
+    "## Empty States",
+    ...renderListWithFallback(report.uiUx.emptyStateFiles, "none"),
+    "",
+    "## Error States",
+    ...renderListWithFallback(report.uiUx.errorStateFiles, "none"),
+    "",
+    "## Responsive Signals",
+    ...renderListWithFallback(report.uiUx.responsiveFiles, "none"),
+    "",
+    "## Accessibility Risk Files",
+    ...renderListWithFallback(report.uiUx.accessibilityRiskFiles, "none"),
+    "",
+    "## Notes",
+    ...renderPlainListWithFallback(report.uiUx.notes, "unknown")
+  ].join("\n");
+}
+
+function renderPerformanceRiskReport(report: RepoReport): string {
+  return [
+    "# PERFORMANCE_RISK_REPORT",
+    "",
+    "## Large Code Files",
+    ...renderListWithFallback(report.performance.largeFiles, "none"),
+    "",
+    "## Client Components",
+    ...renderListWithFallback(report.performance.clientComponentFiles, "none"),
+    "",
+    "## Image Usage",
+    ...renderListWithFallback(report.performance.imageUsageFiles, "none"),
+    "",
+    "## Raw Image Tags",
+    ...renderListWithFallback(report.performance.rawImageFiles, "none"),
+    "",
+    "## Fetch Calls",
+    ...renderListWithFallback(report.performance.fetchFiles, "none"),
+    "",
+    "## Fetch Calls Without Nearby Cache/Revalidate Hints",
+    ...renderListWithFallback(report.performance.uncachedFetchFiles, "none"),
+    "",
+    "## External API Calls",
+    ...renderListWithFallback(report.performance.externalApiFiles, "none"),
+    "",
+    "## Notes",
+    ...renderPlainListWithFallback(report.performance.notes, "unknown")
+  ].join("\n");
+}
+
 function renderRiskReport(report: RepoReport): string {
   const risks: string[] = [];
   const apiRoutes = report.routes.filter((route) => route.kind === "api");
@@ -213,6 +388,37 @@ function renderRiskReport(report: RepoReport): string {
     );
   }
 
+  if (report.env.missingExampleKeys.length > 0) {
+    risks.push(
+      `Env keys referenced but missing from examples: ${report.env.missingExampleKeys
+        .map((key) => `\`${key}\``)
+        .join(", ")}.`
+    );
+  }
+
+  if (report.env.publicRiskKeys.length > 0) {
+    risks.push(
+      `Public env keys require review: ${report.env.publicRiskKeys
+        .map((key) => `\`${key}\``)
+        .join(", ")}.`
+    );
+  }
+
+  if (report.uiUx.notes.length > 0) {
+    risks.push(`UI/UX review notes: ${report.uiUx.notes.join("; ")}.`);
+  }
+
+  if (report.performance.uncachedFetchFiles.length > 0 || report.performance.externalApiFiles.length > 0) {
+    risks.push(
+      `Performance/failure review files: ${uniqueSorted([
+        ...report.performance.uncachedFetchFiles,
+        ...report.performance.externalApiFiles
+      ])
+        .map((file) => `\`${file}\``)
+        .join(", ")}.`
+    );
+  }
+
   const weakAuthSignals = authNames.filter((name) => name === "unknown" || name === "custom-auth");
   if (weakAuthSignals.length > 0) {
     risks.push("Auth provider is custom/unknown. Manual review required.");
@@ -222,6 +428,15 @@ function renderRiskReport(report: RepoReport): string {
     risks.push(
       `Potential risky patterns found in: ${report.security.riskyFiles
         .map((file) => `\`${file}\``)
+        .join(", ")}.`
+    );
+  }
+
+  if (report.focusFiles.length > 0) {
+    risks.push(
+      `Top focus files: ${report.focusFiles
+        .slice(0, 5)
+        .map((item) => `\`${item.file}\` (${item.score})`)
         .join(", ")}.`
     );
   }
@@ -239,7 +454,8 @@ function renderRiskReport(report: RepoReport): string {
     "## Unknowns",
     "- Authorization guard coverage inside route handlers is unknown.",
     "- Row-level tenant/account isolation checks are unknown.",
-    "- Runtime secrets handling and deployment config are unknown."
+    "- Runtime secrets handling and deployment config are unknown.",
+    "- UI behavior still needs manual browser review."
   ].join("\n");
 }
 
@@ -266,6 +482,30 @@ function renderInlineEvidence(files: string[]): string {
   return files.map((file) => `\`${file}\``).join(", ");
 }
 
+function renderFocusFileRows(report: RepoReport): string[] {
+  if (report.focusFiles.length === 0) {
+    return ["| low | 0 | manual review | No scored hotspots were detected. |"];
+  }
+
+  return report.focusFiles.map(
+    (item) =>
+      `| ${item.priority} | ${item.score} | \`${item.file}\` | ${item.reasons.join("; ")} |`
+  );
+}
+
+function renderSuggestedReadOrder(report: RepoReport): string[] {
+  if (report.focusFiles.length > 0) {
+    return report.focusFiles
+      .slice(0, 12)
+      .map((item, index) => `${index + 1}. \`${item.file}\` (${item.priority}, score ${item.score})`);
+  }
+
+  return report.focus.map(
+    (item, index) =>
+      `${index + 1}. ${item.area}: ${item.files.length > 0 ? renderInlineEvidence(item.files) : "manual review"}`
+  );
+}
+
 function renderKeyValueMap(values: Record<string, string>): string[] {
   const entries = Object.entries(values);
   if (entries.length === 0) {
@@ -283,6 +523,14 @@ function renderListWithFallback(items: string[], fallback: string): string[] {
   }
 
   return items.map((item) => `- \`${item}\``);
+}
+
+function renderPlainListWithFallback(items: string[], fallback: string): string[] {
+  if (items.length === 0) {
+    return [`- ${fallback}`];
+  }
+
+  return items.map((item) => `- ${item}`);
 }
 
 function signalsSummary(signals: DetectionSignal[]): string {

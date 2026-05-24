@@ -1,4 +1,4 @@
-export type OutputFormat = "markdown";
+export type OutputFormat = "markdown" | "json" | "all";
 export type Confidence = "high" | "medium" | "low";
 
 export interface ScanOptions {
@@ -61,6 +61,54 @@ export interface SecurityInfo {
   notes: string[];
 }
 
+export interface EnvSafetyInfo {
+  envFiles: string[];
+  exampleFiles: string[];
+  referencedKeys: string[];
+  exampleKeys: string[];
+  missingExampleKeys: string[];
+  publicRiskKeys: string[];
+  serverSecretClientFiles: string[];
+  notes: string[];
+}
+
+export interface UiUxInfo {
+  pageFiles: string[];
+  componentFiles: string[];
+  formFiles: string[];
+  loadingStateFiles: string[];
+  emptyStateFiles: string[];
+  errorStateFiles: string[];
+  responsiveFiles: string[];
+  accessibilityRiskFiles: string[];
+  notes: string[];
+}
+
+export interface PerformanceRiskInfo {
+  largeFiles: string[];
+  clientComponentFiles: string[];
+  imageUsageFiles: string[];
+  rawImageFiles: string[];
+  fetchFiles: string[];
+  uncachedFetchFiles: string[];
+  externalApiFiles: string[];
+  notes: string[];
+}
+
+export interface FocusItem {
+  priority: "high" | "medium" | "low";
+  area: string;
+  reason: string;
+  files: string[];
+}
+
+export interface FocusFileScore {
+  file: string;
+  score: number;
+  priority: "high" | "medium" | "low";
+  reasons: string[];
+}
+
 export interface RepoReport {
   root: string;
   scannedAt: string;
@@ -70,14 +118,11 @@ export interface RepoReport {
   auth: AuthInfo;
   serverActions: ServerActionsInfo;
   security: SecurityInfo;
+  env: EnvSafetyInfo;
+  uiUx: UiUxInfo;
+  performance: PerformanceRiskInfo;
+  focus: FocusItem[];
+  focusFiles: FocusFileScore[];
 }
 
-export interface GeneratedReportFiles {
-  FORGE_CONTEXT: string;
-  ARCHITECTURE_MAP: string;
-  ROUTES_MAP: string;
-  DATABASE_MAP: string;
-  SERVER_ACTIONS_MAP: string;
-  SECURITY_RULES: string;
-  RISK_REPORT: string;
-}
+export type GeneratedReportFiles = Record<string, string>;
