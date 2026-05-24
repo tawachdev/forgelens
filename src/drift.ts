@@ -1,5 +1,10 @@
 import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { promisify } from "node:util";
+import { scanRepo } from "./scan.js";
 import { writeText } from "./utils/fs.js";
 import type {
   DetectionSignal,
@@ -14,6 +19,7 @@ import type {
 } from "./types.js";
 
 const MARKDOWN_ITEM_LIMIT = 8;
+const execFileAsync = promisify(execFile);
 
 export interface DriftOptions {
   baseline: string;
@@ -36,6 +42,46 @@ export async function runDrift(options: DriftOptions): Promise<{
   const files = options.outDir ? await writeDriftReports(report, resolve(options.outDir)) : {};
 
   return { report, files };
+}
+
+export async function runGitDrift(options: {
+  root: string;
+  range: string;
+  outDir?: string;
+}): Promise<{
+  report: DriftReport;
+  files: GeneratedReportFiles;
+}> {
+  const rootAbsolute = resolve(options.root);
+  const { baselineRef, currentRef } = parseGitRange(options.range);
+  const tempRoot = await mkdtemp(join(tmpdir(), "forgelens-git-drift-"));
+
+  try {
+    const baselineRoot = join(tempRoot, "baseline");
+    const currentRoot = join(tempRoot, "current");
+
+    await Promise.all([
+      exportGitTree(rootAbsolute, baselineRef, baselineRoot),
+      exportGitTree(rootAbsolute, currentRef, currentRoot)
+    ]);
+
+    const [baseline, current] = await Promise.all([
+      scanRepo(baselineRoot, ".forgelens"),
+      scanRepo(currentRoot, ".forgelens")
+    ]);
+
+    const report = buildDriftReport(
+      baseline,
+      current,
+      `git:${baselineRef}`,
+      `git:${currentRef}`
+    );
+    const files = options.outDir ? await writeDriftReports(report, resolve(rootAbsolute, options.outDir)) : {};
+
+    return { report, files };
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true });
+  }
 }
 
 export function buildDriftReport(
@@ -118,6 +164,27 @@ async function readRepoReport(path: string): Promise<RepoReport> {
   }
 
   return parsed;
+}
+
+function parseGitRange(range: string): { baselineRef: string; currentRef: string } {
+  const normalized = range.trim();
+  const delimiter = normalized.includes("...") ? "..." : "..";
+  const [baselineRef, currentRef] = normalized.split(delimiter);
+
+  if (!baselineRef || !currentRef) {
+    throw new Error("Git drift range must look like base..head.");
+  }
+
+  return { baselineRef, currentRef };
+}
+
+async function exportGitTree(root: string, ref: string, outDir: string): Promise<void> {
+  await mkdir(outDir, { recursive: true });
+
+  const archivePath = join(outDir, "repo.tar");
+  await execFileAsync("git", ["-C", root, "archive", "--format=tar", `--output=${archivePath}`, ref]);
+  await execFileAsync("tar", ["-xf", archivePath, "-C", outDir]);
+  await rm(archivePath, { force: true });
 }
 
 function buildAuthChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {

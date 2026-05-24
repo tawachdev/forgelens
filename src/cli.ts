@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
+import { resolve } from "node:path";
+import { baselinePathFor, runBaselineSave } from "./baseline.js";
 import { runClean } from "./clean.js";
 import { inspectRepoSafety, renderDoctorReport } from "./doctor.js";
-import { renderDriftReport, runDrift } from "./drift.js";
+import { renderDriftReport, runDrift, runGitDrift } from "./drift.js";
 import { buildCodexPrompt } from "./prompt.js";
 import { runScan } from "./scan.js";
 import type { OutputFormat, ScanOptions } from "./types.js";
@@ -95,23 +97,90 @@ program
     }
   });
 
+const baselineCommand = program
+  .command("baseline")
+  .description("Save and manage ForgeLens baseline reports")
+  .addHelpText("after", "\nExample:\n  forgelens baseline save --name main");
+
+baselineCommand
+  .command("save")
+  .description("Scan and save a named baseline report")
+  .option("--root <path>", "repository root path", ".")
+  .option("--out <path>", "context output folder", ".forgelens")
+  .option("--name <name>", "baseline name", "latest")
+  .action(async (cmdOptions: { root: string; out: string; name: string }) => {
+    try {
+      const result = await runBaselineSave({
+        root: cmdOptions.root,
+        outDir: cmdOptions.out,
+        name: cmdOptions.name
+      });
+
+      console.log(`ForgeLens baseline saved: ${result.baselinePath}`);
+      console.log(`Routes found: ${result.report.routes.length}`);
+      console.log(`Server actions found: ${result.report.serverActions.count}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error(`ForgeLens baseline failed: ${message}`);
+      process.exitCode = 1;
+    }
+  });
+
 program
   .command("drift")
   .description("Compare two ForgeLens JSON reports and flag risky context drift")
-  .requiredOption("--baseline <path>", "older .forgelens/REPO_REPORT.json path")
-  .requiredOption("--current <path>", "newer .forgelens/REPO_REPORT.json path")
+  .option("--baseline <path>", "older .forgelens/REPO_REPORT.json path")
+  .option("--current <path>", "newer .forgelens/REPO_REPORT.json path")
+  .option("--from <name>", "named baseline from the output folder")
+  .option("--git <range>", "compare git refs, for example main..HEAD")
+  .option("--root <path>", "repository root path for --from or --git", ".")
   .option("--out <path>", "optional output folder for DRIFT_REPORT files")
   .addHelpText(
     "after",
-    "\nExample:\n  forgelens drift --baseline .forgelens/baseline.json --current .forgelens/REPO_REPORT.json --out .forgelens"
+    "\nExamples:\n  forgelens drift --baseline .forgelens/baseline.json --current .forgelens/REPO_REPORT.json --out .forgelens\n  forgelens drift --from latest --out .forgelens\n  forgelens drift --git main..HEAD --out .forgelens"
   )
-  .action(async (cmdOptions: { baseline: string; current: string; out?: string }) => {
+  .action(async (cmdOptions: {
+    baseline?: string;
+    current?: string;
+    from?: string;
+    git?: string;
+    root: string;
+    out?: string;
+  }) => {
     try {
-      const result = await runDrift({
-        baseline: cmdOptions.baseline,
-        current: cmdOptions.current,
-        outDir: cmdOptions.out
-      });
+      let result: Awaited<ReturnType<typeof runDrift>>;
+
+      if (cmdOptions.git) {
+        result = await runGitDrift({
+          root: cmdOptions.root,
+          range: cmdOptions.git,
+          outDir: cmdOptions.out ? resolve(cmdOptions.root, cmdOptions.out) : undefined
+        });
+      } else if (cmdOptions.from) {
+        const outDir = cmdOptions.out ?? ".forgelens";
+        const scanResult = await runScan({
+          root: cmdOptions.root,
+          outDir,
+          format: "all",
+          verbose: false
+        });
+
+        result = await runDrift({
+          baseline: baselinePathFor(cmdOptions.root, outDir, cmdOptions.from),
+          current: scanResult.files.REPO_REPORT_JSON,
+          outDir: resolve(cmdOptions.root, outDir)
+        });
+      } else {
+        if (!cmdOptions.baseline || !cmdOptions.current) {
+          throw new Error("Provide --baseline and --current, or use --from, or use --git.");
+        }
+
+        result = await runDrift({
+          baseline: cmdOptions.baseline,
+          current: cmdOptions.current,
+          outDir: cmdOptions.out
+        });
+      }
 
       console.log(renderDriftReport(result.report));
       if (Object.keys(result.files).length > 0) {
