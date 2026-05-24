@@ -25,3 +25,7 @@ Build static output:
 ```bash
 pnpm --dir site build
 ```
+
+Deployment notes:
+
+- `site/DEPLOY.md`
