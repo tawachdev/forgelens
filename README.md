@@ -95,6 +95,17 @@ pnpm link --global
 forgelens scan
 ```
 
+## Developer shortcuts
+
+```text
+make check          Run typecheck, tests, build, and diff check
+make scan           Generate ForgeLens reports
+make baseline       Save current ForgeLens baseline
+make drift          Compare against saved baseline
+make site           Build Astro site
+make release-check  Run all release checks
+```
+
 ## CLI commands
 
 ```bash
