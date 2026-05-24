@@ -100,6 +100,7 @@ forgelens scan
 ```bash
 forgelens scan
 forgelens doctor
+forgelens baseline save
 forgelens drift
 forgelens clean --yes
 forgelens prompt codex
@@ -111,7 +112,10 @@ forgelens prompt codex
 forgelens scan --root . --out .forgelens --format markdown --verbose
 forgelens scan --root . --out .forgelens --format json
 forgelens scan --root . --out .forgelens --format all
+forgelens baseline save --name main
 forgelens drift --baseline .forgelens/baseline/REPO_REPORT.json --current .forgelens/REPO_REPORT.json --out .forgelens
+forgelens drift --from main --out .forgelens
+forgelens drift --git main..HEAD --out .forgelens
 forgelens doctor --root . --out .forgelens
 forgelens clean --root . --out .forgelens --yes
 forgelens prompt codex
@@ -190,6 +194,10 @@ Example from `AI_COMPACT_CONTEXT.md`:
 Example from `ENV_REPORT.md`:
 
 ```md
+## Env Key Groups
+### Public client
+- `NEXT_PUBLIC_SUPABASE_URL`
+
 ## Referenced Keys Missing From Examples
 - `NEXT_PUBLIC_SUPABASE_URL`
 ```
@@ -223,8 +231,7 @@ Example from `DRIFT_REPORT.md`:
 1. Save a known-good baseline report:
 
 ```bash
-forgelens scan --format all --out .forgelens
-cp .forgelens/REPO_REPORT.json .forgelens/baseline.json
+forgelens baseline save --name main
 ```
 
 2. After code changes, scan again:
@@ -236,10 +243,26 @@ forgelens scan --format all --out .forgelens
 3. Compare old vs new context:
 
 ```bash
-forgelens drift --baseline .forgelens/baseline.json --current .forgelens/REPO_REPORT.json --out .forgelens
+forgelens drift --from main --out .forgelens
+```
+
+You can also compare git refs without checking out old code:
+
+```bash
+forgelens drift --git main..HEAD --out .forgelens
 ```
 
 Drift detection focuses on risky edges: auth providers, middleware, admin/API routes, server actions, database schema/migrations/clients, env keys, risky files, and high-priority focus files.
+
+## Landing page
+
+A static launch/demo page lives in `site/`.
+
+```bash
+open site/index.html
+```
+
+It is dependency-free and designed for a short product video.
 
 ## Safety promise
 

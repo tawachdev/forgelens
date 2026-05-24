@@ -10,6 +10,7 @@ Important paths:
 
 - `src/cli.ts`: Commander CLI commands.
 - `src/scan.ts`: Main scan orchestration.
+- `src/baseline.ts`: Named baseline save workflow.
 - `src/drift.ts`: Baseline/current report comparison.
 - `src/detectors/`: Static detectors for routes, auth, database, env, UI/UX, performance, and focus areas.
 - `src/writers/markdown.ts`: Markdown report rendering.
@@ -33,6 +34,7 @@ Important paths:
 - Add or update tests when generated report files, detector behavior, or CLI prompt output changes.
 - Keep public report text practical for AI agents: what to read first, why it matters, and what still needs manual review.
 - Keep JSON output free of secret values. It may include env key names, never env values.
+- Keep `site/` dependency-free unless a real deployment/build need is added.
 
 ## Verification
 

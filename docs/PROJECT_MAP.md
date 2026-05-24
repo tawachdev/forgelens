@@ -9,6 +9,8 @@ ForgeLens helps AI agents read less and focus better before editing code.
 3. Detectors return typed static signals.
 4. `src/detectors/focus.ts` ranks the important areas.
 5. `src/writers/markdown.ts` writes context reports into `.forgelens/`.
+6. `src/baseline.ts` saves named baseline snapshots.
+7. `src/drift.ts` compares baseline/current or git-range reports.
 
 ## Generated Reports
 
@@ -27,6 +29,7 @@ ForgeLens helps AI agents read less and focus better before editing code.
 - `REPO_REPORT.json`: optional tool-readable output when using `--format json` or `--format all`.
 - `DRIFT_REPORT.md`: comparison of old vs new reports for risky context drift.
 - `DRIFT_REPORT.json`: tool-readable drift output.
+- `site/index.html`: static landing page for launch and video demos.
 
 ## Detector Boundaries
 
@@ -40,6 +43,7 @@ ForgeLens helps AI agents read less and focus better before editing code.
 - `ui-ux.ts`: UI files and static UX state hints.
 - `performance.ts`: bundle/runtime/failure risk hints.
 - `focus.ts`: priority read order built from all detector outputs.
+- `baseline.ts`: scan and save named baselines.
 - `drift.ts`: compares baseline/current reports and flags stale context around risky edges.
 - `writers/json.ts`: writes the tool-readable report.
 
@@ -52,3 +56,4 @@ Next strong improvements:
 - Add more fixtures for real-world app shapes.
 - Add optional report snapshots for stable generated output review.
 - Add drift severity tuning from real repos.
+- Add deployment target for the static landing page.
