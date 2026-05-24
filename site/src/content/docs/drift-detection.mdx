@@ -1,0 +1,34 @@
+---
+title: Drift Detection
+description: Detect risky changes since a baseline or between git references.
+order: 2
+---
+
+Context maps can go stale after edits. Drift mode helps you detect changes before the next AI run.
+
+## Baseline mode
+
+Save a baseline when the repo state is trusted:
+
+```bash
+forgelens baseline save --name main --root . --out .forgelens
+```
+
+Compare current state to that baseline:
+
+```bash
+forgelens drift --from main --root . --out .forgelens
+```
+
+## Git range mode
+
+Use git range comparisons for pull requests:
+
+```bash
+forgelens drift --git main..HEAD --root . --out .forgelens
+```
+
+## What to read
+
+Open `DRIFT_REPORT.md` first.  
+Then check `REPO_REPORT.json` if you need machine-readable data for CI or automation.

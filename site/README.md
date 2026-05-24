@@ -1,16 +1,27 @@
-# ForgeLens Landing Page
+# ForgeLens Site (Astro)
 
-Static landing page for product demos and launch material.
+Product website built with Astro.
 
-Open locally:
+Routes:
+
+1. `/` landing page
+2. `/docs` docs hub + guides
+3. `/examples` command workflows
+4. `/launch` demo storyboard page
+
+Docs are authored in MDX under:
+
+- `site/src/content/docs/*.mdx`
+
+Run locally from repo root:
 
 ```bash
-open site/index.html
+pnpm --dir site install
+pnpm --dir site dev
 ```
 
-The page is dependency-free and designed to support a short product video:
+Build static output:
 
-1. Show the repo before scanning.
-2. Run `forgelens scan --format all`.
-3. Run `forgelens drift --from main`.
-4. Show `AI_COMPACT_CONTEXT.md` and `DRIFT_REPORT.md`.
+```bash
+pnpm --dir site build
+```

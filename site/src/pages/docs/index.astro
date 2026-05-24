@@ -1,0 +1,37 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { getCollection } from "astro:content";
+
+const docs = (await getCollection("docs")).sort((a, b) => a.data.order - b.data.order);
+
+const toDocPath = (id: string) => id.replace(/\.(md|mdx)$/i, "");
+---
+
+<SiteLayout
+  title="ForgeLens Docs | Fast start and risk-first workflow"
+  description="Get started with ForgeLens scan, baseline, and drift commands to guide AI coding agents."
+>
+  <section class="shell section">
+    <div class="section-heading">
+      <h2>Docs built for fast adoption.</h2>
+      <p>
+        Start with one command, then layer baseline and drift checks. Keep output local and guide the
+        agent with evidence before it writes code.
+      </p>
+    </div>
+    <div class="docs-grid">
+      {
+        docs.map((doc) => (
+          <article class="info-card">
+            <span class="label">Guide {doc.data.order}</span>
+            <h3 style="margin-top: 10px;">{doc.data.title}</h3>
+            <p>{doc.data.description}</p>
+            <p style="margin-top: 16px;">
+              <a class="button" href={`/docs/${toDocPath(doc.id)}`}>Open guide</a>
+            </p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</SiteLayout>
