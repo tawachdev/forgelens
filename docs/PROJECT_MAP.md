@@ -25,6 +25,8 @@ ForgeLens helps AI agents read less and focus better before editing code.
 - `PERFORMANCE_RISK_REPORT.md`: large files, client components, image usage, fetch calls, and external API failure points.
 - `RISK_REPORT.md`: combined static risk summary and unknowns.
 - `REPO_REPORT.json`: optional tool-readable output when using `--format json` or `--format all`.
+- `DRIFT_REPORT.md`: comparison of old vs new reports for risky context drift.
+- `DRIFT_REPORT.json`: tool-readable drift output.
 
 ## Detector Boundaries
 
@@ -38,6 +40,7 @@ ForgeLens helps AI agents read less and focus better before editing code.
 - `ui-ux.ts`: UI files and static UX state hints.
 - `performance.ts`: bundle/runtime/failure risk hints.
 - `focus.ts`: priority read order built from all detector outputs.
+- `drift.ts`: compares baseline/current reports and flags stale context around risky edges.
 - `writers/json.ts`: writes the tool-readable report.
 
 ## Product Direction
@@ -48,3 +51,4 @@ Next strong improvements:
 - Add detector confidence to UI/UX, env, and performance reports.
 - Add more fixtures for real-world app shapes.
 - Add optional report snapshots for stable generated output review.
+- Add drift severity tuning from real repos.

@@ -34,6 +34,7 @@ ForgeLens solves this by producing deterministic Markdown context from static an
 - Scores the top focus files by static risk signals
 - Flags env/config drift using env key names only, never secret values
 - Can write tool-readable JSON with `--format json` or `--format all`
+- Compares old and new JSON reports to detect context drift around risky boundaries
 - Writes context files to output folder only (default `.forgelens/`)
 
 ## Supported signals/providers
@@ -99,6 +100,7 @@ forgelens scan
 ```bash
 forgelens scan
 forgelens doctor
+forgelens drift
 forgelens clean --yes
 forgelens prompt codex
 ```
@@ -109,6 +111,7 @@ forgelens prompt codex
 forgelens scan --root . --out .forgelens --format markdown --verbose
 forgelens scan --root . --out .forgelens --format json
 forgelens scan --root . --out .forgelens --format all
+forgelens drift --baseline .forgelens/baseline/REPO_REPORT.json --current .forgelens/REPO_REPORT.json --out .forgelens
 forgelens doctor --root . --out .forgelens
 forgelens clean --root . --out .forgelens --yes
 forgelens prompt codex
@@ -134,6 +137,11 @@ Inside `.forgelens/`:
 With `--format json` or `--format all`:
 
 - `REPO_REPORT.json`
+
+With `forgelens drift --out .forgelens`:
+
+- `DRIFT_REPORT.md`
+- `DRIFT_REPORT.json`
 
 ## Sample output (short)
 
@@ -193,12 +201,45 @@ Example from `RISK_REPORT.md`:
 - API routes detected (1): `app/api/health/route.ts`. Verify auth and input validation.
 ```
 
+Example from `DRIFT_REPORT.md`:
+
+```md
+### API route drift
+
+- Severity: high
+- Added: `app/api/admin/export/route.ts`
+- Note: New or removed API routes change exposed server boundaries.
+```
+
 ## Example workflow with AI agents
 
 1. Run `forgelens scan` in your repo.
 2. Open generated `.forgelens/*.md` files.
 3. Paste `forgelens prompt codex` output into Codex (or equivalent prompt in Claude Code/Cursor/OpenCode).
 4. Ask agent to plan and edit with those context files first.
+
+## Drift workflow
+
+1. Save a known-good baseline report:
+
+```bash
+forgelens scan --format all --out .forgelens
+cp .forgelens/REPO_REPORT.json .forgelens/baseline.json
+```
+
+2. After code changes, scan again:
+
+```bash
+forgelens scan --format all --out .forgelens
+```
+
+3. Compare old vs new context:
+
+```bash
+forgelens drift --baseline .forgelens/baseline.json --current .forgelens/REPO_REPORT.json --out .forgelens
+```
+
+Drift detection focuses on risky edges: auth providers, middleware, admin/API routes, server actions, database schema/migrations/clients, env keys, risky files, and high-priority focus files.
 
 ## Safety promise
 

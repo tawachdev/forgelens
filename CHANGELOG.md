@@ -11,6 +11,8 @@
 - `PERFORMANCE_RISK_REPORT.md` for large files, client components, image usage, fetch calls, uncached fetch hints, and external API failure points.
 - `REPO_REPORT.json` with `--format json` or `--format all` for tool-readable output.
 - File-level focus scores with reasons and priority.
+- `forgelens drift` to compare two `REPO_REPORT.json` files and flag stale context around auth, routes, server actions, database, env, security, and focus files.
+- `DRIFT_REPORT.md` and `DRIFT_REPORT.json` when drift output is written to a folder.
 - Project-specific `AGENTS.md` and `docs/PROJECT_MAP.md` for faster future agent work.
 
 ### Changed

@@ -10,6 +10,7 @@ Important paths:
 
 - `src/cli.ts`: Commander CLI commands.
 - `src/scan.ts`: Main scan orchestration.
+- `src/drift.ts`: Baseline/current report comparison.
 - `src/detectors/`: Static detectors for routes, auth, database, env, UI/UX, performance, and focus areas.
 - `src/writers/markdown.ts`: Markdown report rendering.
 - `src/writers/json.ts`: Tool-readable JSON report rendering.
@@ -23,6 +24,7 @@ Important paths:
 - Never print `.env` secret values. Only print env file names and env key names.
 - Keep detector output evidence-based. Use `unknown`, `none`, or manual review notes when static analysis cannot know.
 - Do not add network/API calls to scanning.
+- Drift output must compare generated JSON reports. It should not read source code directly or print secret values.
 
 ## Implementation Rules
 
