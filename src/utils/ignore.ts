@@ -9,7 +9,20 @@ const DEFAULT_IGNORED_DIRS = [
   "generated"
 ];
 
-const DEFAULT_IGNORED_PATTERNS = ["tests/fixtures/**", "**/tests/fixtures/**"];
+const DEFAULT_IGNORED_PATTERNS = [
+  "tests/fixtures/**",
+  "**/tests/fixtures/**",
+  "__generated__/**",
+  "**/__generated__/**",
+  "**/*.generated.*",
+  "**/*.gen.*",
+  "public/workbox-*.js",
+  "**/public/workbox-*.js",
+  "public/sw.js",
+  "**/public/sw.js",
+  "public/**/*.map",
+  "**/public/**/*.map"
+];
 
 export function defaultIgnores(outDir: string): string[] {
   const normalizedOutDir = normalizeOutDir(outDir);
