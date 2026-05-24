@@ -16,6 +16,9 @@
   "scripts": {
     "build": "tsup src/cli.ts --format esm,cjs --dts --clean --out-dir dist",
     "dev": "tsx src/cli.ts",
+    "site:dev": "pnpm --dir site dev",
+    "site:build": "pnpm --dir site build",
+    "site:preview": "pnpm --dir site preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"

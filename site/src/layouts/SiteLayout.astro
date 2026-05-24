@@ -1,0 +1,58 @@
+---
+import BrandMark from "../components/BrandMark.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props as Props;
+const currentPath = Astro.url.pathname;
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/docs", label: "Docs" },
+  { href: "/examples", label: "Examples" },
+  { href: "/launch", label: "Launch" }
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body>
+    <header class="shell nav" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="ForgeLens home">
+        <span class="mark"><BrandMark /></span>
+        <span>ForgeLens</span>
+      </a>
+      <nav class="nav-links" aria-label="Site links">
+        {
+          navItems.map((item) => (
+            <a class={currentPath === item.href ? "is-active" : ""} href={item.href}>
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+      <a class="button primary" href="https://github.com/tawachdev/forgelens">GitHub</a>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="footer">
+      <div class="shell">
+        <div class="brand">
+          <span class="mark"><BrandMark /></span>
+          <span>ForgeLens</span>
+        </div>
+        <span>Read less. Start with risky files first.</span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="ForgeLens | Context maps for AI coding agents"
+  description="ForgeLens scans repositories and generates compact, risk-aware context maps so AI coding agents read the right files first."
+>
+  <section class="shell hero" aria-labelledby="hero-title">
+    <div>
+      <div class="eyebrow"><span class="pulse" aria-hidden="true"></span> Repo context, ranked by risk</div>
+      <h1 id="hero-title">Stop letting AI read the wrong files first.</h1>
+      <p class="hero-copy">
+        ForgeLens scans your repo and creates compact, risk-aware context maps for AI coding agents.
+        Auth, server actions, data access, env drift, and risky routes move to the front of the queue.
+      </p>
+      <div class="hero-actions">
+        <a class="button blue" href="/launch">Watch the workflow</a>
+        <a class="button" href="/docs">See docs</a>
+      </div>
+      <div class="install">npx forgelens scan --format all</div>
+    </div>
+
+    <div class="product-stage" aria-label="ForgeLens report preview">
+      <div class="report-window">
+        <div class="window-bar" aria-hidden="true">
+          <span class="dot red"></span>
+          <span class="dot amber"></span>
+          <span class="dot green"></span>
+          <span class="window-title">AI_COMPACT_CONTEXT.md</span>
+        </div>
+        <div class="report-body">
+          <div class="scan-column">
+            <span class="label">Repository scan</span>
+            <div class="big-number">33</div>
+            <p class="small">routes found, with admin and API edges ranked before normal pages.</p>
+            <div class="signal-list">
+              <div class="signal"><strong>Server actions</strong><span class="chip red">20</span></div>
+              <div class="signal"><strong>Auth signals</strong><span class="chip">high</span></div>
+              <div class="signal"><strong>Schema drift</strong><span class="chip amber">review</span></div>
+              <div class="signal"><strong>Env keys</strong><span class="chip green">grouped</span></div>
+            </div>
+          </div>
+          <div class="score-column">
+            <span class="label">Top files to read first</span>
+            <div class="risk-table">
+              <div class="risk-row">
+                <span class="score">114</span>
+                <div>
+                  <div class="path">app/api/admin/cafe/qr-link/route.ts</div>
+                  <div class="why">API route, admin route, auth evidence</div>
+                </div>
+                <span class="chip red">high</span>
+              </div>
+              <div class="risk-row">
+                <span class="score">92</span>
+                <div>
+                  <div class="path">app/api/admin/booking-docs/[id]/route.ts</div>
+                  <div class="why">exposed server boundary</div>
+                </div>
+                <span class="chip red">high</span>
+              </div>
+              <div class="risk-row">
+                <span class="score">89</span>
+                <div>
+                  <div class="path">app/actions/super-admin.ts</div>
+                  <div class="why">server action, data mutation</div>
+                </div>
+                <span class="chip red">high</span>
+              </div>
+              <div class="risk-row">
+                <span class="score">45</span>
+                <div>
+                  <div class="path">prisma/schema.prisma</div>
+                  <div class="why">database schema</div>
+                </div>
+                <span class="chip amber">med</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="drift-card" aria-label="Drift report summary">
+        <div class="drift-title">
+          <span>DRIFT_REPORT</span>
+          <span class="chip red">5 high</span>
+        </div>
+        <p class="small">
+          New API routes, server actions, schema files, and env keys changed since baseline.
+          Read these before the next AI edit.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="shell section">
+    <div class="section-heading">
+      <h2>Context limits are not the real enemy. Bad focus is.</h2>
+      <p>
+        Bigger context windows still fail when the agent starts in the wrong files. ForgeLens turns
+        static repo signals into a practical read order before any risky edit.
+      </p>
+    </div>
+    <div class="grid-three">
+      <article class="feature">
+        <div class="icon">01</div>
+        <h3>Risk-first maps</h3>
+        <p>Admin routes, API handlers, server actions, database clients, and schema files get ranked before low-risk UI files.</p>
+      </article>
+      <article class="feature">
+        <div class="icon">02</div>
+        <h3>Drift detection</h3>
+        <p>Compare a baseline report with current code to detect changes around auth, data, env, and high-risk boundaries.</p>
+      </article>
+      <article class="feature">
+        <div class="icon">03</div>
+        <h3>Safe local output</h3>
+        <p>Scans run locally. Env reports include file names and key names only, never secret values.</p>
+      </article>
+    </div>
+  </section>
+</SiteLayout>

@@ -1,0 +1,40 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="Launch Storyboard | ForgeLens"
+  description="A ready storyboard for shipping a clear ForgeLens launch demo."
+>
+  <section class="shell section">
+    <div class="section-heading">
+      <h2>Launch storyboard for a sharp product demo.</h2>
+      <p>
+        Show the pain, run ForgeLens, then show the AI reading risky files first. Keep it short, clear,
+        and evidence-based.
+      </p>
+    </div>
+    <div class="demo-panel">
+      <div class="terminal" aria-label="Demo script command block">
+        <span class="muted">$</span> forgelens scan --format all --out .forgelens<br />
+        <span class="muted">$</span> forgelens baseline save --name main<br />
+        <span class="muted">$</span> forgelens drift --git main..HEAD<br />
+        <span class="muted">$</span> cat .forgelens/DRIFT_REPORT.md<br /><br />
+        <span class="muted">Talk track:</span><br />
+        1) Show risky files before edit<br />
+        2) Explain why auth and data paths are first<br />
+        3) Start AI work from ranked list
+      </div>
+      <div class="video-placeholder" aria-label="Launch narrative card">
+        <div>
+          <span class="label">45-second launch cut</span>
+          <h3 style="margin-top: 12px;">From repo noise to risk-first AI guidance.</h3>
+          <p class="small" style="margin-top: 12px;">
+            Sequence: problem, scan, drift, compact context, agent result. End with reliability and speed.
+          </p>
+        </div>
+        <div class="play" aria-hidden="true">GO</div>
+      </div>
+    </div>
+  </section>
+</SiteLayout>

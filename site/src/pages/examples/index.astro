@@ -1,0 +1,32 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="Examples | ForgeLens"
+  description="Practical examples for scan, baseline, and drift workflows with ForgeLens."
+>
+  <section class="shell section">
+    <div class="section-heading">
+      <h2>Examples for real repo workflows.</h2>
+      <p>Copy these patterns for local projects, pull requests, and team review handoffs.</p>
+    </div>
+    <div class="grid-three">
+      <article class="info-card">
+        <span class="label">Local project boot</span>
+        <p style="margin-top: 12px;"><span class="inline-code">forgelens scan --root . --out .forgelens --format all</span></p>
+        <p style="margin-top: 12px;">Use when starting a new repo session with any coding agent.</p>
+      </article>
+      <article class="info-card">
+        <span class="label">Baseline workflow</span>
+        <p style="margin-top: 12px;"><span class="inline-code">forgelens baseline save --name current</span></p>
+        <p style="margin-top: 10px;"><span class="inline-code">forgelens drift --from current</span></p>
+      </article>
+      <article class="info-card">
+        <span class="label">PR risk check</span>
+        <p style="margin-top: 12px;"><span class="inline-code">forgelens drift --git main..HEAD</span></p>
+        <p style="margin-top: 12px;">Attach `DRIFT_REPORT.md` to review notes before merge.</p>
+      </article>
+    </div>
+  </section>
+</SiteLayout>
