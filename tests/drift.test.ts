@@ -38,7 +38,9 @@ describe("drift", () => {
 
     const markdown = renderDriftReport(result.report);
     expect(markdown).toContain("# DRIFT_REPORT");
+    expect(markdown).toContain("## Executive Summary");
     expect(markdown).toContain("Review data writes");
+    expect(markdown).toContain("DRIFT_REPORT.json");
     expect(markdown).not.toContain("FORGELENS_TEST_PLACEHOLDER");
   });
 

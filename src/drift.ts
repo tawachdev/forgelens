@@ -13,6 +13,8 @@ import type {
   RouteItem
 } from "./types.js";
 
+const MARKDOWN_ITEM_LIMIT = 8;
+
 export interface DriftOptions {
   baseline: string;
   current: string;
@@ -78,6 +80,9 @@ export function renderDriftReport(report: DriftReport): string {
     `- Medium changes: ${report.summary.medium}`,
     `- Low changes: ${report.summary.low}`,
     `- Total changes: ${report.summary.total}`,
+    "",
+    "## Executive Summary",
+    ...renderExecutiveSummary(report),
     "",
     "## Changes",
     ...renderDriftChanges(report.changes),
@@ -338,11 +343,31 @@ function renderDriftChanges(changes: DriftChange[]): string[] {
     "",
     `- Severity: ${change.severity}`,
     `- Category: ${change.category}`,
-    `- Added: ${renderInlineList(change.added)}`,
-    `- Removed: ${renderInlineList(change.removed)}`,
+    `- Added: ${renderLimitedInlineList(change.added)}`,
+    `- Removed: ${renderLimitedInlineList(change.removed)}`,
     `- Note: ${change.note}`,
     ""
   ]);
+}
+
+function renderExecutiveSummary(report: DriftReport): string[] {
+  if (report.changes.length === 0) {
+    return ["- No drift detected."];
+  }
+
+  const highChanges = report.changes.filter((change) => change.severity === "high");
+  const mediumChanges = report.changes.filter((change) => change.severity === "medium");
+  const lines = [
+    `- ${report.summary.high} high, ${report.summary.medium} medium, ${report.summary.low} low drift groups detected.`,
+    `- Highest-risk groups: ${renderChangeTitles(highChanges.slice(0, 5))}.`,
+    `- Full added/removed lists are available in \`DRIFT_REPORT.json\`.`
+  ];
+
+  if (mediumChanges.length > 0) {
+    lines.push(`- Medium-risk groups: ${renderChangeTitles(mediumChanges.slice(0, 5))}.`);
+  }
+
+  return lines;
 }
 
 function renderPlainList(items: string[]): string[] {
@@ -355,6 +380,26 @@ function renderInlineList(items: string[]): string {
   }
 
   return items.map((item) => `\`${item}\``).join(", ");
+}
+
+function renderLimitedInlineList(items: string[]): string {
+  if (items.length === 0) {
+    return "none";
+  }
+
+  const visibleItems = items.slice(0, MARKDOWN_ITEM_LIMIT);
+  const remaining = items.length - visibleItems.length;
+  const suffix = remaining > 0 ? `, and ${remaining} more in \`DRIFT_REPORT.json\`` : "";
+
+  return `${renderInlineList(visibleItems)}${suffix}`;
+}
+
+function renderChangeTitles(changes: DriftChange[]): string {
+  if (changes.length === 0) {
+    return "none";
+  }
+
+  return changes.map((change) => change.title).join(", ");
 }
 
 function signalNames(signals: DetectionSignal[]): string[] {
