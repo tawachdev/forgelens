@@ -69,7 +69,22 @@ export interface EnvSafetyInfo {
   missingExampleKeys: string[];
   publicRiskKeys: string[];
   serverSecretClientFiles: string[];
+  groups: EnvKeyGroups;
   notes: string[];
+}
+
+export interface EnvKeyGroups {
+  publicClient: string[];
+  serverSecrets: string[];
+  database: string[];
+  auth: string[];
+  storage: string[];
+  payments: string[];
+  notifications: string[];
+  observability: string[];
+  testAndCi: string[];
+  debug: string[];
+  other: string[];
 }
 
 export interface UiUxInfo {

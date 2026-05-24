@@ -198,6 +198,9 @@ function renderEnvReport(report: RepoReport): string {
     "## Referenced Keys",
     ...renderListWithFallback(report.env.referencedKeys, "unknown"),
     "",
+    "## Env Key Groups",
+    ...renderEnvGroups(report.env.groups),
+    "",
     "## Example Keys",
     ...renderListWithFallback(report.env.exampleKeys, "unknown"),
     "",
@@ -333,6 +336,43 @@ function renderPerformanceRiskReport(report: RepoReport): string {
     "## Notes",
     ...renderPlainListWithFallback(report.performance.notes, "unknown")
   ].join("\n");
+}
+
+function renderEnvGroups(groups: RepoReport["env"]["groups"]): string[] {
+  return [
+    "### Public client",
+    ...renderListWithFallback(groups.publicClient, "none"),
+    "",
+    "### Server secrets",
+    ...renderListWithFallback(groups.serverSecrets, "none"),
+    "",
+    "### Database",
+    ...renderListWithFallback(groups.database, "none"),
+    "",
+    "### Auth and sessions",
+    ...renderListWithFallback(groups.auth, "none"),
+    "",
+    "### Storage and uploads",
+    ...renderListWithFallback(groups.storage, "none"),
+    "",
+    "### Payments",
+    ...renderListWithFallback(groups.payments, "none"),
+    "",
+    "### Notifications and realtime",
+    ...renderListWithFallback(groups.notifications, "none"),
+    "",
+    "### Observability",
+    ...renderListWithFallback(groups.observability, "none"),
+    "",
+    "### Test and CI",
+    ...renderListWithFallback(groups.testAndCi, "none"),
+    "",
+    "### Debug and local controls",
+    ...renderListWithFallback(groups.debug, "none"),
+    "",
+    "### Other",
+    ...renderListWithFallback(groups.other, "none")
+  ];
 }
 
 function renderRiskReport(report: RepoReport): string {

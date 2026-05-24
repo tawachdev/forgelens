@@ -76,6 +76,8 @@ describe("runScan", () => {
     const envReport = await readFile(result.files.ENV_REPORT, "utf8");
     expect(envReport).toContain("NEXT_PUBLIC_SUPABASE_URL");
     expect(envReport).toContain("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    expect(envReport).toContain("## Env Key Groups");
+    expect(envReport).toContain("### Public client");
     expect(envReport).not.toContain("FORGELENS_TEST_PLACEHOLDER");
 
     const uiUxReport = await readFile(result.files.UI_UX_REPORT, "utf8");
