@@ -38,6 +38,7 @@
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         color: var(--ink);
+        overflow-x: hidden;
         background:
           linear-gradient(#edf0f5 1px, transparent 1px),
           linear-gradient(90deg, #edf0f5 1px, transparent 1px),
@@ -83,21 +84,16 @@
       }
 
       .mark {
-        width: 38px;
-        height: 38px;
-        border: 3px solid #101010;
+        width: 46px;
+        height: 46px;
+        flex: 0 0 auto;
         display: grid;
         place-items: center;
-        transform: rotate(30deg);
-        background: #ffffff;
       }
 
-      .mark span {
-        width: 18px;
-        height: 22px;
-        border-left: 5px solid var(--blue);
-        border-top: 5px solid var(--blue);
-        transform: rotate(-75deg);
+      .logo-svg {
+        width: 100%;
+        height: 100%;
         display: block;
       }
 
@@ -140,10 +136,14 @@
       .hero {
         min-height: calc(100vh - 88px);
         display: grid;
-        grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+        grid-template-columns: minmax(0, 0.86fr) minmax(460px, 1.14fr);
         align-items: center;
         gap: 56px;
         padding: 42px 0 76px;
+      }
+
+      .hero > div {
+        min-width: 0;
       }
 
       .eyebrow {
@@ -151,13 +151,14 @@
         align-items: center;
         gap: 10px;
         width: fit-content;
-        border: 1px solid #cbd3ff;
+        border: 1px solid #cfd6e3;
         border-radius: 999px;
         padding: 7px 11px;
-        color: var(--blue-dark);
-        background: #f8f9ff;
+        color: #101010;
+        background: #ffffff;
         font-size: 13px;
         font-weight: 800;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
       }
 
       .pulse {
@@ -208,13 +209,18 @@
 
       .product-stage {
         position: relative;
+        display: grid;
+        align-content: center;
+        gap: 16px;
         min-height: 620px;
+        min-width: 0;
       }
 
       .report-window {
-        position: absolute;
-        inset: 0 0 auto auto;
+        position: relative;
+        justify-self: end;
         width: min(100%, 720px);
+        min-width: 0;
         border: 1px solid #cfd6e3;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.96);
@@ -260,18 +266,21 @@
 
       .report-body {
         display: grid;
-        grid-template-columns: 0.72fr 1fr;
+        grid-template-columns: minmax(230px, 0.78fr) minmax(0, 1fr);
         min-height: 520px;
+        min-width: 0;
       }
 
       .scan-column {
-        border-right: 1px solid var(--line);
-        padding: 22px;
-        background: #fbfcff;
+        border-right: 1px solid #c9d2e2;
+        padding: 24px;
+        background: #f3f6fb;
+        min-width: 0;
       }
 
       .score-column {
         padding: 22px;
+        min-width: 0;
       }
 
       .label {
@@ -287,6 +296,7 @@
         font-size: 58px;
         line-height: 1;
         font-weight: 900;
+        color: #101010;
       }
 
       .small {
@@ -306,10 +316,11 @@
         align-items: center;
         justify-content: space-between;
         gap: 14px;
-        border: 1px solid #e1e5ee;
+        border: 1px solid #d8deea;
         border-radius: 8px;
         padding: 12px;
         background: #ffffff;
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
       }
 
       .signal strong {
@@ -378,10 +389,10 @@
       }
 
       .drift-card {
-        position: absolute;
-        left: 0;
-        bottom: 22px;
-        width: min(360px, 86%);
+        position: relative;
+        justify-self: start;
+        width: min(420px, 92%);
+        margin-left: clamp(110px, 18vw, 240px);
         border: 1px solid #f2d2d8;
         border-radius: 8px;
         padding: 18px;
@@ -588,7 +599,7 @@
 
         .drift-card {
           margin-top: 18px;
-          bottom: auto;
+          margin-left: 0;
         }
 
         .grid-three,
@@ -621,12 +632,40 @@
         }
 
         h1 {
-          font-size: 48px;
+          max-width: 330px;
+          font-size: 38px;
+          line-height: 0.98;
         }
 
         .hero-copy,
         .section-heading p {
           font-size: 16px;
+        }
+
+        .hero-copy {
+          max-width: min(330px, calc(100vw - 24px));
+          overflow-wrap: anywhere;
+        }
+
+        .button {
+          padding: 0 14px;
+        }
+
+        .install {
+          width: min(330px, calc(100vw - 24px));
+          max-width: calc(100vw - 24px);
+          font-size: 13px;
+        }
+
+        .report-window,
+        .drift-card {
+          justify-self: start;
+          width: min(330px, calc(100vw - 24px));
+          max-width: calc(100vw - 24px);
+        }
+
+        .small {
+          overflow-wrap: anywhere;
         }
 
         .report-body {
@@ -636,6 +675,12 @@
         .scan-column {
           border-right: 0;
           border-bottom: 1px solid var(--line);
+          padding: 20px;
+        }
+
+        .score-column {
+          min-width: 0;
+          padding: 20px;
         }
 
         .risk-row {
@@ -661,7 +706,16 @@
   <body>
     <header class="shell nav" aria-label="Main navigation">
       <a class="brand" href="#top" aria-label="ForgeLens home">
-        <span class="mark" aria-hidden="true"><span></span></span>
+        <span class="mark" aria-hidden="true">
+          <svg class="logo-svg" viewBox="0 0 64 64" role="img">
+            <path d="M32 5 56 18v28L32 59 8 46V18Z" fill="#fff" stroke="#101010" stroke-width="5" stroke-linejoin="round" />
+            <path d="M32 5v17L46 30" fill="none" stroke="#101010" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M32 22 18 30" fill="none" stroke="#101010" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M32 22v28" fill="none" stroke="#2448ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M32 22 22 16" fill="none" stroke="#2448ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M32 22 43 16" fill="none" stroke="#2448ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
         <span>ForgeLens</span>
       </a>
       <nav class="nav-links" aria-label="Page sections">
@@ -675,7 +729,7 @@
     <main id="top">
       <section class="shell hero" aria-labelledby="hero-title">
         <div>
-          <div class="eyebrow"><span class="pulse" aria-hidden="true"></span> Local-first AI context scanner</div>
+          <div class="eyebrow"><span class="pulse" aria-hidden="true"></span> Repo context, ranked by risk</div>
           <h1 id="hero-title">Stop letting AI read the wrong files first.</h1>
           <p class="hero-copy">
             ForgeLens scans your repo and creates compact, risk-aware context maps for AI coding agents.
@@ -853,7 +907,16 @@
     <footer class="footer">
       <div class="shell">
         <div class="brand">
-          <span class="mark" aria-hidden="true"><span></span></span>
+          <span class="mark" aria-hidden="true">
+            <svg class="logo-svg" viewBox="0 0 64 64" role="img">
+              <path d="M32 5 56 18v28L32 59 8 46V18Z" fill="#fff" stroke="#101010" stroke-width="5" stroke-linejoin="round" />
+              <path d="M32 5v17L46 30" fill="none" stroke="#101010" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M32 22 18 30" fill="none" stroke="#101010" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M32 22v28" fill="none" stroke="#2448ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M32 22 22 16" fill="none" stroke="#2448ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M32 22 43 16" fill="none" stroke="#2448ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
           <span>ForgeLens</span>
         </div>
         <span>Read less. Find the risky files first.</span>
