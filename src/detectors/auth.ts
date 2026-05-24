@@ -95,7 +95,10 @@ export async function detectAuth(root: string, outDir: string): Promise<AuthInfo
     });
   }
 
-  const cookieSessionFiles = findFiles(codeIndex, /cookies\(|cookie|session|iron-session|next-session/i);
+  const cookieSessionFiles = findFiles(
+    codeIndex,
+    /cookies\(|["']cookie["']|iron-session|next-session|getServerSession|sessionToken|createSession|verifySession/i
+  );
   if (cookieSessionFiles.length > 0) {
     providers.push({
       name: "cookie-session-custom-auth",
