@@ -136,8 +136,11 @@ make release-check  Run all release checks
 - ForgeLens writes only inside the selected output folder (default `.forgelens/`).
 - Env report includes file names and key names only, never secret values.
 - Detection is static and deterministic; no runtime code execution.
+- Security and auth findings are heuristic signals, not guarantees.
 
 ## Limits
 
 - This is static analysis, not a full semantic or runtime analyzer.
 - It is not a replacement for security review or penetration testing.
+- No warning does not mean safe. False negatives and false positives are possible.
+- Do not use ForgeLens as a security scanner or compliance gate.
