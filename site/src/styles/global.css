@@ -1086,6 +1086,20 @@ p {
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
+    text-align: center;
+  }
+
+  .dispatch-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .dispatch-actions .dispatch-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .dispatch-showcase {
