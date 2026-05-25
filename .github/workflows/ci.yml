@@ -35,15 +35,10 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            site/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install root dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Install site dependencies
-        run: pnpm --dir site install --frozen-lockfile
 
       - name: Typecheck
         run: pnpm typecheck
@@ -53,9 +48,6 @@ jobs:
 
       - name: Build CLI
         run: pnpm build
-
-      - name: Build site
-        run: pnpm --dir site build
 
       - name: NPM package dry run
         run: npm pack --dry-run

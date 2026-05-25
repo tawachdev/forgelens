@@ -29,7 +29,7 @@ ForgeLens helps AI agents read less and focus better before editing code.
 - `REPO_REPORT.json`: optional tool-readable output when using `--format json` or `--format all`.
 - `DRIFT_REPORT.md`: comparison of old vs new reports for risky context drift.
 - `DRIFT_REPORT.json`: tool-readable drift output.
-- `site/index.html`: static landing page for launch and video demos.
+- Public website is deployed separately; source stays private.
 
 ## Detector Boundaries
 
@@ -56,4 +56,4 @@ Next strong improvements:
 - Add more fixtures for real-world app shapes.
 - Add optional report snapshots for stable generated output review.
 - Add drift severity tuning from real repos.
-- Add deployment target for the static landing page.
+- Keep public CLI/docs and private product site separated.

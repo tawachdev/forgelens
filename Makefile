@@ -1,4 +1,4 @@
-.PHONY: check scan baseline drift site release-check
+.PHONY: check scan baseline drift release-check
 
 check:
 	./scripts/check.sh
@@ -11,9 +11,6 @@ baseline:
 
 drift:
 	./scripts/drift.sh
-
-site:
-	./scripts/site-build.sh
 
 release-check:
 	./scripts/release-check.sh

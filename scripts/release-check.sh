@@ -10,9 +10,6 @@ pnpm test
 echo "[release-check] pnpm build"
 pnpm build
 
-echo "[release-check] pnpm --dir site build"
-pnpm --dir site build
-
 echo "[release-check] npm pack --dry-run"
 npm pack --dry-run
 
