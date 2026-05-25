@@ -1,5 +1,5 @@
 {
-  "installCommand": "pnpm install --frozen-lockfile",
+  "installCommand": "pnpm --dir site install --frozen-lockfile",
   "buildCommand": "pnpm --dir site build",
   "outputDirectory": "site/dist"
 }
