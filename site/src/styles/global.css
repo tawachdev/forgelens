@@ -816,10 +816,12 @@ p {
 
 .docs-grid .info-card {
   position: relative;
-  border-color: #cabca8;
+  border-color: #c6b8a4;
+  background: #f6f1e8;
   box-shadow:
-    0 2px 0 rgba(138, 122, 99, 0.38),
-    0 12px 18px rgba(79, 64, 42, 0.09);
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    0 3px 0 rgba(144, 126, 101, 0.5),
+    0 13px 20px rgba(79, 64, 42, 0.09);
 }
 
 .doc-list {
