@@ -18,7 +18,6 @@
   <img alt="Copilot" src="https://img.shields.io/badge/Copilot-supported-111111" />
   <img alt="Gemini CLI" src="https://img.shields.io/badge/Gemini%20CLI-supported-111111" />
   <img alt="OpenCode" src="https://img.shields.io/badge/OpenCode-supported-111111" />
-  <img alt="Astro docs" src="https://img.shields.io/badge/Astro%20docs-included-6f42c1" />
 </p>
 
 ## Why ForgeLens?
@@ -123,24 +122,13 @@ make check          Run typecheck, tests, build, and diff check
 make scan           Generate ForgeLens reports
 make baseline       Save current ForgeLens baseline
 make drift          Compare against saved baseline
-make site           Build Astro site
 make release-check  Run all release checks
 ```
 
 ## Docs
 
-- Astro product/docs app: [site/](site/)
-- Docs entry page source: [site/src/pages/docs/index.astro](site/src/pages/docs/index.astro)
-- MDX docs content: [site/src/content/docs/](site/src/content/docs/)
+- Live product/docs website: [forgelens-lyart.vercel.app](https://forgelens-lyart.vercel.app)
 - GitHub launch checklist: [docs/GITHUB_LAUNCH_CHECKLIST.md](docs/GITHUB_LAUNCH_CHECKLIST.md)
-
-Run docs locally:
-
-```bash
-pnpm site:dev
-```
-
-Then open `http://127.0.0.1:4321/docs`.
 
 ## Safety Notes
 
