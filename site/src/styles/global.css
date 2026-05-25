@@ -859,7 +859,9 @@ p {
 .doc-prose code {
   font: 700 14px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   border-radius: 7px;
-  background: #f1f3f7;
+  background: #e7dfd3;
+  border: 1px solid #d5ccbd;
+  color: #433c33;
   padding: 2px 7px;
 }
 
