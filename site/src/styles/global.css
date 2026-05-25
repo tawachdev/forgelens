@@ -814,6 +814,14 @@ p {
   gap: 18px;
 }
 
+.docs-grid .info-card {
+  position: relative;
+  border-color: #cabca8;
+  box-shadow:
+    0 2px 0 rgba(138, 122, 99, 0.38),
+    0 12px 18px rgba(79, 64, 42, 0.09);
+}
+
 .doc-list {
   margin-top: 12px;
   padding-left: 18px;
