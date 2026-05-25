@@ -84,11 +84,19 @@ button:focus-visible {
   color: #625a4f;
   font-size: 14px;
   font-weight: 700;
+  padding: 8px 12px 9px;
+  border: 1px solid #d1c3af;
+  border-radius: 12px;
+  background: #efe9df;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.56),
+    0 2px 0 rgba(144, 126, 101, 0.32);
 }
 
 .nav-links a {
   border-bottom: 2px solid transparent;
-  padding-bottom: 3px;
+  padding: 4px 10px 5px;
+  border-radius: 8px;
   transition: color 180ms ease;
 }
 
@@ -135,6 +143,18 @@ button:focus-visible {
   border-color: #2f2821;
   background: #3a3026;
   color: #f9f3e8;
+}
+
+.gh-link {
+  gap: 8px;
+}
+
+.button-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  display: block;
+  fill: currentColor;
 }
 
 .button.blue {
@@ -984,8 +1004,8 @@ p {
 
   .dispatch-home h1 {
     max-width: 100%;
-    font-size: clamp(54px, 8.8vw, 92px);
-    line-height: 0.92;
+    font-size: clamp(46px, 7.2vw, 78px);
+    line-height: 0.97;
   }
 
   .dispatch-showcase {
