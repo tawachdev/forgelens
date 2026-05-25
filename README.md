@@ -132,6 +132,7 @@ make release-check  Run all release checks
 - Astro product/docs app: [site/](site/)
 - Docs entry page source: [site/src/pages/docs/index.astro](site/src/pages/docs/index.astro)
 - MDX docs content: [site/src/content/docs/](site/src/content/docs/)
+- GitHub launch checklist: [docs/GITHUB_LAUNCH_CHECKLIST.md](docs/GITHUB_LAUNCH_CHECKLIST.md)
 
 Run docs locally:
 
