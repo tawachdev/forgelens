@@ -22,6 +22,8 @@ describe("provider detection", () => {
 
     expect(report.database.providers.some((provider) => provider.name === "drizzle")).toBe(true);
     expect(report.database.providers.some((provider) => provider.name === "postgres-client")).toBe(true);
+    const drizzle = report.database.providers.find((provider) => provider.name === "drizzle");
+    expect(drizzle?.evidenceFiles).toContain("src/db/schema.ts");
   });
 
   it("detects Vite framework projects", async () => {
