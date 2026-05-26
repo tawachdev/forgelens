@@ -17,9 +17,11 @@
   "scripts": {
     "build": "tsup src/cli.ts --format esm,cjs --dts --clean --out-dir dist",
     "dev": "tsx src/cli.ts",
+    "lint": "biome lint src tests scripts",
+    "format:check": "biome check --changed --since=main --no-errors-on-unmatched --formatter-enabled=true --linter-enabled=false --organize-imports-enabled=false .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "release-check": "pnpm typecheck && pnpm test && pnpm build && npm pack --dry-run",
+    "release-check": "bash scripts/release-check.sh",
     "prepublishOnly": "pnpm release-check"
   },
   "keywords": [
@@ -45,6 +47,7 @@
     "fast-glob": "^3.3.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.15.18",
     "tsup": "^8.5.0",
     "tsx": "^4.20.3",
