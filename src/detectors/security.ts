@@ -4,16 +4,19 @@ import { readTextIfExists } from "../utils/fs.js";
 import { defaultIgnores } from "../utils/ignore.js";
 import type { SecurityInfo } from "../types.js";
 
-export async function detectSecurity(root: string, outDir: string): Promise<SecurityInfo> {
+export async function detectSecurity(
+  root: string,
+  outDir: string,
+): Promise<SecurityInfo> {
   const ignore = defaultIgnores(outDir);
 
   const [envFiles, middlewareFiles, codeFiles] = await Promise.all([
     fg([".env*", "**/.env*"], { cwd: root, ignore }),
     fg(["middleware.@(ts|tsx|js|jsx)", "src/middleware.@(ts|tsx|js|jsx)"], {
       cwd: root,
-      ignore
+      ignore,
     }),
-    fg(["**/*.@(ts|tsx|js|jsx)"], { cwd: root, ignore })
+    fg(["**/*.@(ts|tsx|js|jsx)"], { cwd: root, ignore }),
   ]);
 
   const riskyFiles: string[] = [];
@@ -48,7 +51,7 @@ export async function detectSecurity(root: string, outDir: string): Promise<Secu
   notes.push(
     middlewareFiles.length > 0
       ? "middleware detected"
-      : "no middleware detected (unknown route protection coverage)"
+      : "no middleware detected (unknown route protection coverage)",
   );
 
   if (envFiles.length === 0) {
@@ -64,7 +67,7 @@ export async function detectSecurity(root: string, outDir: string): Promise<Secu
     middlewareFiles: uniqueSorted(middlewareFiles),
     riskyFiles: uniqueSorted(riskyFiles),
     sensitiveFiles: uniqueSorted(sensitiveFiles),
-    notes
+    notes,
   };
 }
 
@@ -80,7 +83,7 @@ function isSensitiveFile(file: string, text: string): boolean {
     return true;
   }
 
-  if (text.includes("\"use server\"") || text.includes("'use server'")) {
+  if (text.includes('"use server"') || text.includes("'use server'")) {
     return true;
   }
 
@@ -92,5 +95,7 @@ function uniqueSorted(values: string[]): string[] {
 }
 
 function isEvidenceCodeFile(file: string): boolean {
-  return !/(^|\/)(tests?|__tests__|fixtures?)\/|\.test\.|\.spec\.|^src\/detectors\//.test(file);
+  return !/(^|\/)(tests?|__tests__|fixtures?)\/|\.test\.|\.spec\.|^src\/detectors\//.test(
+    file,
+  );
 }

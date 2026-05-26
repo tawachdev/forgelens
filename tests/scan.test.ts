@@ -9,7 +9,7 @@ afterEach(async () => {
   await Promise.all(
     createdDirs.splice(0).map(async (dir) => {
       await rm(dir, { recursive: true, force: true });
-    })
+    }),
   );
 });
 
@@ -22,7 +22,7 @@ describe("runScan", () => {
       root: fixtureRoot,
       outDir,
       format: "markdown",
-      verbose: false
+      verbose: false,
     });
 
     const filePaths = Object.values(result.files);
@@ -69,7 +69,10 @@ describe("runScan", () => {
     expect(focusMap).toContain("## Top Files");
     expect(focusMap).toContain("Suggested Read Order");
 
-    const compactContext = await readFile(result.files.AI_COMPACT_CONTEXT, "utf8");
+    const compactContext = await readFile(
+      result.files.AI_COMPACT_CONTEXT,
+      "utf8",
+    );
     expect(compactContext).toContain("# AI_COMPACT_CONTEXT");
     expect(compactContext).toContain("## Top Files");
 
@@ -84,20 +87,26 @@ describe("runScan", () => {
     expect(uiUxReport).toContain("# UI_UX_REPORT");
     expect(uiUxReport).toContain("app/dashboard/page.tsx");
 
-    const performanceReport = await readFile(result.files.PERFORMANCE_RISK_REPORT, "utf8");
+    const performanceReport = await readFile(
+      result.files.PERFORMANCE_RISK_REPORT,
+      "utf8",
+    );
     expect(performanceReport).toContain("# PERFORMANCE_RISK_REPORT");
     expect(performanceReport).toContain("## Client Components");
   });
 
   it("adds specific risk warnings when middleware is missing and server actions exist", async () => {
-    const fixtureRoot = join(process.cwd(), "tests/fixtures/next-app-no-middleware");
+    const fixtureRoot = join(
+      process.cwd(),
+      "tests/fixtures/next-app-no-middleware",
+    );
     const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-risk-test");
 
     const result = await runScan({
       root: fixtureRoot,
       outDir,
       format: "markdown",
-      verbose: false
+      verbose: false,
     });
 
     const riskReport = await readFile(result.files.RISK_REPORT, "utf8");
@@ -113,13 +122,16 @@ describe("runScan", () => {
 
   it("warns when auth is unknown/custom and never leaks env secret values", async () => {
     const fixtureRoot = join(process.cwd(), "tests/fixtures/stacks/prisma");
-    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-auth-risk-test");
+    const { outDir } = createFixtureOutDir(
+      fixtureRoot,
+      "forgelens-auth-risk-test",
+    );
 
     const result = await runScan({
       root: fixtureRoot,
       outDir,
       format: "markdown",
-      verbose: false
+      verbose: false,
     });
 
     const riskReport = await readFile(result.files.RISK_REPORT, "utf8");
@@ -140,8 +152,8 @@ describe("runScan", () => {
         root: fixtureRoot,
         outDir: join(process.cwd(), ".tmp/outside-root"),
         format: "markdown",
-        verbose: false
-      })
+        verbose: false,
+      }),
     ).rejects.toThrow("Output folder must be inside the selected root folder.");
   });
 
@@ -153,13 +165,15 @@ describe("runScan", () => {
       root: fixtureRoot,
       outDir,
       format: "json",
-      verbose: false
+      verbose: false,
     });
 
     expect(Object.keys(result.files)).toEqual(["REPO_REPORT_JSON"]);
 
     const jsonText = await readFile(result.files.REPO_REPORT_JSON, "utf8");
-    const parsed = JSON.parse(jsonText) as { focusFiles?: Array<{ file: string; score: number }> };
+    const parsed = JSON.parse(jsonText) as {
+      focusFiles?: Array<{ file: string; score: number }>;
+    };
 
     expect(parsed.focusFiles?.length).toBeGreaterThan(0);
     expect(parsed.focusFiles?.[0]?.score).toBeGreaterThan(0);
@@ -174,7 +188,7 @@ describe("runScan", () => {
       root: fixtureRoot,
       outDir,
       format: "all",
-      verbose: false
+      verbose: false,
     });
 
     expect(result.files.AI_FOCUS_MAP).toBeDefined();
@@ -183,13 +197,16 @@ describe("runScan", () => {
 
   it("extracts Vite import.meta.env keys in env report", async () => {
     const fixtureRoot = join(process.cwd(), "tests/fixtures/stacks/vite");
-    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-vite-env-test");
+    const { outDir } = createFixtureOutDir(
+      fixtureRoot,
+      "forgelens-vite-env-test",
+    );
 
     const result = await runScan({
       root: fixtureRoot,
       outDir,
       format: "markdown",
-      verbose: false
+      verbose: false,
     });
 
     const envReport = await readFile(result.files.ENV_REPORT, "utf8");
@@ -198,7 +215,10 @@ describe("runScan", () => {
   });
 });
 
-function createFixtureOutDir(fixtureRoot: string, prefix: string): { outDir: string } {
+function createFixtureOutDir(
+  fixtureRoot: string,
+  prefix: string,
+): { outDir: string } {
   const outDir = `.tmp/${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   createdDirs.push(join(fixtureRoot, outDir));
   return { outDir };

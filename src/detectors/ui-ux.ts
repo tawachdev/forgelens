@@ -10,21 +10,47 @@ const UI_FILE_GLOBS = [
   "pages/**/*.@(tsx|jsx)",
   "src/pages/**/*.@(tsx|jsx)",
   "components/**/*.@(tsx|jsx)",
-  "src/components/**/*.@(tsx|jsx)"
+  "src/components/**/*.@(tsx|jsx)",
 ];
 
-export async function detectUiUx(root: string, outDir: string): Promise<UiUxInfo> {
-  const files = await fg(UI_FILE_GLOBS, { cwd: root, ignore: defaultIgnores(outDir) });
+export async function detectUiUx(
+  root: string,
+  outDir: string,
+): Promise<UiUxInfo> {
+  const files = await fg(UI_FILE_GLOBS, {
+    cwd: root,
+    ignore: defaultIgnores(outDir),
+  });
   const indexed = await indexFiles(root, files);
 
   const pageFiles = uniqueSorted(files.filter(isPageFile));
-  const componentFiles = uniqueSorted(files.filter((file) => /(^|\/)components\//.test(file)));
-  const formFiles = matchingFiles(indexed, /<form\b|<input\b|<textarea\b|<select\b|useForm\(/i);
-  const loadingStateFiles = matchingFiles(indexed, /loading|spinner|skeleton|pending|isLoading/i);
-  const emptyStateFiles = matchingFiles(indexed, /empty|no results|not found|no data/i);
-  const errorStateFiles = matchingFiles(indexed, /error|try again|failed|notFound\(/i);
-  const responsiveFiles = matchingFiles(indexed, /(?:sm|md|lg|xl|2xl):|@media|\bcontainer\b/i);
-  const accessibilityRiskFiles = matchingFiles(indexed, /<img\b(?![^>]*\salt=)|<button\b(?![^>]*(aria-label|title|>))/i);
+  const componentFiles = uniqueSorted(
+    files.filter((file) => /(^|\/)components\//.test(file)),
+  );
+  const formFiles = matchingFiles(
+    indexed,
+    /<form\b|<input\b|<textarea\b|<select\b|useForm\(/i,
+  );
+  const loadingStateFiles = matchingFiles(
+    indexed,
+    /loading|spinner|skeleton|pending|isLoading/i,
+  );
+  const emptyStateFiles = matchingFiles(
+    indexed,
+    /empty|no results|not found|no data/i,
+  );
+  const errorStateFiles = matchingFiles(
+    indexed,
+    /error|try again|failed|notFound\(/i,
+  );
+  const responsiveFiles = matchingFiles(
+    indexed,
+    /(?:sm|md|lg|xl|2xl):|@media|\bcontainer\b/i,
+  );
+  const accessibilityRiskFiles = matchingFiles(
+    indexed,
+    /<img\b(?![^>]*\salt=)|<button\b(?![^>]*(aria-label|title|>))/i,
+  );
 
   return {
     pageFiles,
@@ -35,11 +61,21 @@ export async function detectUiUx(root: string, outDir: string): Promise<UiUxInfo
     errorStateFiles,
     responsiveFiles,
     accessibilityRiskFiles,
-    notes: buildNotes(pageFiles, formFiles, loadingStateFiles, emptyStateFiles, errorStateFiles, responsiveFiles)
+    notes: buildNotes(
+      pageFiles,
+      formFiles,
+      loadingStateFiles,
+      emptyStateFiles,
+      errorStateFiles,
+      responsiveFiles,
+    ),
   };
 }
 
-async function indexFiles(root: string, files: string[]): Promise<Array<{ file: string; text: string }>> {
+async function indexFiles(
+  root: string,
+  files: string[],
+): Promise<Array<{ file: string; text: string }>> {
   const indexed: Array<{ file: string; text: string }> = [];
 
   for (const file of files) {
@@ -57,8 +93,15 @@ function isPageFile(file: string): boolean {
   return /(^|\/)(page|layout|loading|error|not-found)\.(tsx|jsx)$/.test(file);
 }
 
-function matchingFiles(indexed: Array<{ file: string; text: string }>, pattern: RegExp): string[] {
-  return uniqueSorted(indexed.filter((entry) => pattern.test(entry.text)).map((entry) => entry.file));
+function matchingFiles(
+  indexed: Array<{ file: string; text: string }>,
+  pattern: RegExp,
+): string[] {
+  return uniqueSorted(
+    indexed
+      .filter((entry) => pattern.test(entry.text))
+      .map((entry) => entry.file),
+  );
 }
 
 function buildNotes(
@@ -67,7 +110,7 @@ function buildNotes(
   loadingStateFiles: string[],
   emptyStateFiles: string[],
   errorStateFiles: string[],
-  responsiveFiles: string[]
+  responsiveFiles: string[],
 ): string[] {
   const notes = [`UI files scanned: ${pageFiles.length} pages/layout states`];
 

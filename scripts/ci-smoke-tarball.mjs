@@ -26,15 +26,20 @@ async function runCommand(label, command, args, options = {}) {
 async function runNpmExec(args, cwd) {
   const stdout = await runCommand("npm", npmCmd, args, {
     cwd,
-    shell: process.platform === "win32"
+    shell: process.platform === "win32",
   });
   return stdout;
 }
 
 async function runNodeScript(scriptPath, args, cwd) {
-  const stdout = await runCommand("node", process.execPath, [scriptPath, ...args], {
-    cwd
-  });
+  const stdout = await runCommand(
+    "node",
+    process.execPath,
+    [scriptPath, ...args],
+    {
+      cwd,
+    },
+  );
   return stdout;
 }
 
@@ -45,11 +50,11 @@ async function writeSmokePackageJson(smokeRoot) {
       {
         name: "forgelens-npm-smoke",
         version: "1.0.0",
-        private: true
+        private: true,
       },
       null,
-      2
-    )}\n`
+      2,
+    )}\n`,
   );
 }
 
@@ -83,9 +88,13 @@ async function readPackedTarballPath() {
 }
 
 async function assertVersion(cliEntrypoint, expectedVersion) {
-  const versionOutput = (await runNodeScript(cliEntrypoint, ["--version"], process.cwd())).trim();
+  const versionOutput = (
+    await runNodeScript(cliEntrypoint, ["--version"], process.cwd())
+  ).trim();
   if (versionOutput !== expectedVersion) {
-    throw new Error(`Expected tarball CLI version ${expectedVersion}, got ${versionOutput}`);
+    throw new Error(
+      `Expected tarball CLI version ${expectedVersion}, got ${versionOutput}`,
+    );
   }
 }
 
@@ -97,7 +106,7 @@ async function runSmokeScan(cliEntrypoint) {
   await runNodeScript(
     cliEntrypoint,
     ["scan", "--root", fixtureRoot, "--out", outDir, "--format", "json"],
-    process.cwd()
+    process.cwd(),
   );
 
   await assertReportExists(join(fixtureRoot, outDir, "REPO_REPORT.json"));
@@ -116,7 +125,13 @@ async function main() {
   try {
     await installPackedTarball(smokeRoot, tarballPath);
 
-    const cliEntrypoint = join(smokeRoot, "node_modules", "forgelens", "dist", "cli.js");
+    const cliEntrypoint = join(
+      smokeRoot,
+      "node_modules",
+      "forgelens",
+      "dist",
+      "cli.js",
+    );
     await assertCliEntrypointExists(cliEntrypoint);
     await assertVersion(cliEntrypoint, expectedVersion);
     await runSmokeScan(cliEntrypoint);

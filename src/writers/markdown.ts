@@ -1,10 +1,14 @@
 import { join } from "node:path";
 import { writeText } from "../utils/fs.js";
-import type { DetectionSignal, GeneratedReportFiles, RepoReport } from "../types.js";
+import type {
+  DetectionSignal,
+  GeneratedReportFiles,
+  RepoReport,
+} from "../types.js";
 
 export async function writeMarkdownReports(
   report: RepoReport,
-  outDirAbsolute: string
+  outDirAbsolute: string,
 ): Promise<GeneratedReportFiles> {
   const files: GeneratedReportFiles = {
     FORGE_CONTEXT: join(outDirAbsolute, "FORGE_CONTEXT.md"),
@@ -18,7 +22,7 @@ export async function writeMarkdownReports(
     AI_COMPACT_CONTEXT: join(outDirAbsolute, "AI_COMPACT_CONTEXT.md"),
     UI_UX_REPORT: join(outDirAbsolute, "UI_UX_REPORT.md"),
     PERFORMANCE_RISK_REPORT: join(outDirAbsolute, "PERFORMANCE_RISK_REPORT.md"),
-    RISK_REPORT: join(outDirAbsolute, "RISK_REPORT.md")
+    RISK_REPORT: join(outDirAbsolute, "RISK_REPORT.md"),
   };
 
   await Promise.all([
@@ -32,8 +36,11 @@ export async function writeMarkdownReports(
     writeText(files.AI_FOCUS_MAP, renderAiFocusMap(report)),
     writeText(files.AI_COMPACT_CONTEXT, renderAiCompactContext(report)),
     writeText(files.UI_UX_REPORT, renderUiUxReport(report)),
-    writeText(files.PERFORMANCE_RISK_REPORT, renderPerformanceRiskReport(report)),
-    writeText(files.RISK_REPORT, renderRiskReport(report))
+    writeText(
+      files.PERFORMANCE_RISK_REPORT,
+      renderPerformanceRiskReport(report),
+    ),
+    writeText(files.RISK_REPORT, renderRiskReport(report)),
   ]);
 
   return files;
@@ -57,14 +64,16 @@ function renderForgeContext(report: RepoReport): string {
     `- Top focus files: ${report.focusFiles.length}`,
     `- Env keys referenced: ${report.env.referencedKeys.length}`,
     `- UI pages/layout states: ${report.uiUx.pageFiles.length}`,
-    `- Performance risk files: ${uniqueSorted([
-      ...report.performance.largeFiles,
-      ...report.performance.uncachedFetchFiles,
-      ...report.performance.externalApiFiles
-    ]).length}`,
+    `- Performance risk files: ${
+      uniqueSorted([
+        ...report.performance.largeFiles,
+        ...report.performance.uncachedFetchFiles,
+        ...report.performance.externalApiFiles,
+      ]).length
+    }`,
     "",
     "## Package Scripts",
-    ...renderKeyValueMap(report.project.scripts)
+    ...renderKeyValueMap(report.project.scripts),
   ].join("\n");
 }
 
@@ -92,10 +101,10 @@ function renderArchitectureMap(report: RepoReport): string {
         ...report.security.middlewareFiles,
         ...report.database.schemaFiles,
         ...report.serverActions.files,
-        ...report.focus.flatMap((item) => item.files)
+        ...report.focus.flatMap((item) => item.files),
       ]),
-      "unknown"
-    )
+      "unknown",
+    ),
   ].join("\n");
 }
 
@@ -104,7 +113,7 @@ function renderRoutesMap(report: RepoReport): string {
     "# ROUTES_MAP",
     "",
     "| Kind | Route | Source | File |",
-    "|---|---|---|---|"
+    "|---|---|---|---|",
   ];
 
   if (report.routes.length === 0) {
@@ -113,7 +122,9 @@ function renderRoutesMap(report: RepoReport): string {
   }
 
   for (const route of report.routes) {
-    lines.push(`| ${route.kind} | \`${route.route}\` | ${route.source} | \`${route.file}\` |`);
+    lines.push(
+      `| ${route.kind} | \`${route.route}\` | ${route.source} | \`${route.file}\` |`,
+    );
   }
 
   return lines.join("\n");
@@ -136,7 +147,7 @@ function renderDatabaseMap(report: RepoReport): string {
     ...renderListWithFallback(report.database.clientFiles, "unknown"),
     "",
     "## Unknown/Manual Review Notes",
-    ...renderListWithFallback(report.database.notes, "unknown")
+    ...renderListWithFallback(report.database.notes, "unknown"),
   ].join("\n");
 }
 
@@ -147,12 +158,14 @@ function renderServerActionsMap(report: RepoReport): string {
     `- Total files: ${report.serverActions.count}`,
     "",
     "## Files",
-    ...renderListWithFallback(report.serverActions.files, "unknown")
+    ...renderListWithFallback(report.serverActions.files, "unknown"),
   ].join("\n");
 }
 
 function renderSecurityRules(report: RepoReport): string {
-  const apiRouteFiles = report.routes.filter((route) => route.kind === "api").map((route) => route.file);
+  const apiRouteFiles = report.routes
+    .filter((route) => route.kind === "api")
+    .map((route) => route.file);
 
   return [
     "# SECURITY_RULES",
@@ -179,7 +192,7 @@ function renderSecurityRules(report: RepoReport): string {
     ...renderListWithFallback(report.security.sensitiveFiles, "unknown"),
     "",
     "## Manual verification checklist",
-    ...buildSecurityChecklist(report).map((item) => `- [ ] ${item}`)
+    ...buildSecurityChecklist(report).map((item) => `- [ ] ${item}`),
   ].join("\n");
 }
 
@@ -214,7 +227,7 @@ function renderEnvReport(report: RepoReport): string {
     ...renderListWithFallback(report.env.serverSecretClientFiles, "none"),
     "",
     "## Notes",
-    ...renderPlainListWithFallback(report.env.notes, "unknown")
+    ...renderPlainListWithFallback(report.env.notes, "unknown"),
   ].join("\n");
 }
 
@@ -228,7 +241,7 @@ function renderAiFocusMap(report: RepoReport): string {
     "|---|---|---|---|",
     ...report.focus.map(
       (item) =>
-        `| ${item.priority} | ${item.area} | ${item.reason} | ${renderInlineEvidence(item.files)} |`
+        `| ${item.priority} | ${item.area} | ${item.reason} | ${renderInlineEvidence(item.files)} |`,
     ),
     "",
     "## Top Files",
@@ -237,7 +250,7 @@ function renderAiFocusMap(report: RepoReport): string {
     ...renderFocusFileRows(report),
     "",
     "## Suggested Read Order",
-    ...renderSuggestedReadOrder(report)
+    ...renderSuggestedReadOrder(report),
   ].join("\n");
 }
 
@@ -258,20 +271,26 @@ function renderAiCompactContext(report: RepoReport): string {
     `- Env keys referenced: ${report.env.referencedKeys.length}`,
     "",
     "## Top Files",
-    ...renderListWithFallback(report.focusFiles.slice(0, 12).map((item) => item.file), "manual review"),
+    ...renderListWithFallback(
+      report.focusFiles.slice(0, 12).map((item) => item.file),
+      "manual review",
+    ),
     "",
     "## Why These Files",
     ...renderPlainListWithFallback(
       report.focusFiles
         .slice(0, 12)
-        .map((item) => `${item.file}: ${item.priority} priority, score ${item.score}, ${item.reasons.join("; ")}`),
-      "No scored hotspots were detected."
+        .map(
+          (item) =>
+            `${item.file}: ${item.priority} priority, score ${item.score}, ${item.reasons.join("; ")}`,
+        ),
+      "No scored hotspots were detected.",
     ),
     "",
     "## Read Next If Needed",
     "- `AI_FOCUS_MAP.md` for full ranked areas and file scores.",
     "- `SECURITY_RULES.md` for auth, middleware, and sensitive paths.",
-    "- `RISK_REPORT.md` for manual review unknowns."
+    "- `RISK_REPORT.md` for manual review unknowns.",
   ].join("\n");
 }
 
@@ -304,7 +323,7 @@ function renderUiUxReport(report: RepoReport): string {
     ...renderListWithFallback(report.uiUx.accessibilityRiskFiles, "none"),
     "",
     "## Notes",
-    ...renderPlainListWithFallback(report.uiUx.notes, "unknown")
+    ...renderPlainListWithFallback(report.uiUx.notes, "unknown"),
   ].join("\n");
 }
 
@@ -334,7 +353,7 @@ function renderPerformanceRiskReport(report: RepoReport): string {
     ...renderListWithFallback(report.performance.externalApiFiles, "none"),
     "",
     "## Notes",
-    ...renderPlainListWithFallback(report.performance.notes, "unknown")
+    ...renderPlainListWithFallback(report.performance.notes, "unknown"),
   ].join("\n");
 }
 
@@ -371,7 +390,7 @@ function renderEnvGroups(groups: RepoReport["env"]["groups"]): string[] {
     ...renderListWithFallback(groups.debug, "none"),
     "",
     "### Other",
-    ...renderListWithFallback(groups.other, "none")
+    ...renderListWithFallback(groups.other, "none"),
   ];
 }
 
@@ -379,7 +398,7 @@ function renderRiskReport(report: RepoReport): string {
   const risks: string[] = [];
   const apiRoutes = report.routes.filter((route) => route.kind === "api");
   const adminRoutes = report.routes.filter(
-    (route) => route.route.includes("/admin") || route.route === "/admin"
+    (route) => route.route.includes("/admin") || route.route === "/admin",
   );
   const authNames = report.auth.providers.map((provider) => provider.name);
 
@@ -387,7 +406,7 @@ function renderRiskReport(report: RepoReport): string {
     risks.push(
       `Admin routes detected but no middleware: ${adminRoutes
         .map((route) => `\`${route.file}\``)
-        .join(", ")}. Verify authorization guards.`
+        .join(", ")}. Verify authorization guards.`,
     );
   }
 
@@ -396,7 +415,7 @@ function renderRiskReport(report: RepoReport): string {
       `Server actions detected (${report.serverActions.count}): ${report.serverActions.files
         .slice(0, 6)
         .map((file) => `\`${file}\``)
-        .join(", ")}. Verify auth and input validation.`
+        .join(", ")}. Verify auth and input validation.`,
     );
   }
 
@@ -405,18 +424,20 @@ function renderRiskReport(report: RepoReport): string {
       `API routes detected (${apiRoutes.length}): ${apiRoutes
         .slice(0, 6)
         .map((route) => `\`${route.file}\``)
-        .join(", ")}. Verify auth and input validation.`
+        .join(", ")}. Verify auth and input validation.`,
     );
   } else {
     risks.push("No API routes detected.");
   }
 
-  const dbProviders = report.database.providers.filter((provider) => provider.name !== "unknown");
+  const dbProviders = report.database.providers.filter(
+    (provider) => provider.name !== "unknown",
+  );
   if (dbProviders.length > 0) {
     risks.push(
       `Database providers detected: ${dbProviders
         .map((provider) => `${provider.name} (${provider.confidence})`)
-        .join(", ")}. Verify credentials are server-only.`
+        .join(", ")}. Verify credentials are server-only.`,
     );
   }
 
@@ -424,7 +445,7 @@ function renderRiskReport(report: RepoReport): string {
     risks.push(
       `Environment files detected (names only): ${report.security.envFiles
         .map((file) => `\`${file}\``)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
@@ -432,7 +453,7 @@ function renderRiskReport(report: RepoReport): string {
     risks.push(
       `Env keys referenced but missing from examples: ${report.env.missingExampleKeys
         .map((key) => `\`${key}\``)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
@@ -440,7 +461,7 @@ function renderRiskReport(report: RepoReport): string {
     risks.push(
       `Public env keys require review: ${report.env.publicRiskKeys
         .map((key) => `\`${key}\``)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
@@ -448,18 +469,23 @@ function renderRiskReport(report: RepoReport): string {
     risks.push(`UI/UX review notes: ${report.uiUx.notes.join("; ")}.`);
   }
 
-  if (report.performance.uncachedFetchFiles.length > 0 || report.performance.externalApiFiles.length > 0) {
+  if (
+    report.performance.uncachedFetchFiles.length > 0 ||
+    report.performance.externalApiFiles.length > 0
+  ) {
     risks.push(
       `Performance/failure review files: ${uniqueSorted([
         ...report.performance.uncachedFetchFiles,
-        ...report.performance.externalApiFiles
+        ...report.performance.externalApiFiles,
       ])
         .map((file) => `\`${file}\``)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
-  const weakAuthSignals = authNames.filter((name) => name === "unknown" || name === "custom-auth");
+  const weakAuthSignals = authNames.filter(
+    (name) => name === "unknown" || name === "custom-auth",
+  );
   if (weakAuthSignals.length > 0) {
     risks.push("Auth provider is custom/unknown. Manual review required.");
   }
@@ -468,7 +494,7 @@ function renderRiskReport(report: RepoReport): string {
     risks.push(
       `Potential risky patterns found in: ${report.security.riskyFiles
         .map((file) => `\`${file}\``)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
@@ -477,12 +503,14 @@ function renderRiskReport(report: RepoReport): string {
       `Top focus files: ${report.focusFiles
         .slice(0, 5)
         .map((item) => `\`${item.file}\` (${item.score})`)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
   if (risks.length === 0) {
-    risks.push("No obvious static risks found. Dynamic/runtime risks remain unknown.");
+    risks.push(
+      "No obvious static risks found. Dynamic/runtime risks remain unknown.",
+    );
   }
 
   return [
@@ -495,7 +523,7 @@ function renderRiskReport(report: RepoReport): string {
     "- Authorization guard coverage inside route handlers is unknown.",
     "- Row-level tenant/account isolation checks are unknown.",
     "- Runtime secrets handling and deployment config are unknown.",
-    "- UI behavior still needs manual browser review."
+    "- UI behavior still needs manual browser review.",
   ].join("\n");
 }
 
@@ -529,7 +557,7 @@ function renderFocusFileRows(report: RepoReport): string[] {
 
   return report.focusFiles.map(
     (item) =>
-      `| ${item.priority} | ${item.score} | \`${item.file}\` | ${item.reasons.join("; ")} |`
+      `| ${item.priority} | ${item.score} | \`${item.file}\` | ${item.reasons.join("; ")} |`,
   );
 }
 
@@ -537,12 +565,15 @@ function renderSuggestedReadOrder(report: RepoReport): string[] {
   if (report.focusFiles.length > 0) {
     return report.focusFiles
       .slice(0, 12)
-      .map((item, index) => `${index + 1}. \`${item.file}\` (${item.priority}, score ${item.score})`);
+      .map(
+        (item, index) =>
+          `${index + 1}. \`${item.file}\` (${item.priority}, score ${item.score})`,
+      );
   }
 
   return report.focus.map(
     (item, index) =>
-      `${index + 1}. ${item.area}: ${item.files.length > 0 ? renderInlineEvidence(item.files) : "manual review"}`
+      `${index + 1}. ${item.area}: ${item.files.length > 0 ? renderInlineEvidence(item.files) : "manual review"}`,
   );
 }
 
@@ -565,7 +596,10 @@ function renderListWithFallback(items: string[], fallback: string): string[] {
   return items.map((item) => `- \`${item}\``);
 }
 
-function renderPlainListWithFallback(items: string[], fallback: string): string[] {
+function renderPlainListWithFallback(
+  items: string[],
+  fallback: string,
+): string[] {
   if (items.length === 0) {
     return [`- ${fallback}`];
   }
@@ -578,7 +612,9 @@ function signalsSummary(signals: DetectionSignal[]): string {
     return "unknown";
   }
 
-  return signals.map((signal) => `${signal.name} (${signal.confidence})`).join(", ");
+  return signals
+    .map((signal) => `${signal.name} (${signal.confidence})`)
+    .join(", ");
 }
 
 function hasNonUnknown(signals: DetectionSignal[]): boolean {
@@ -594,7 +630,7 @@ function buildSecurityChecklist(report: RepoReport): string[] {
     "Confirm auth checks for admin pages and server actions.",
     "Confirm API routes validate input and enforce auth.",
     "Confirm server actions validate input and enforce auth.",
-    "Confirm secrets are never exposed to client code."
+    "Confirm secrets are never exposed to client code.",
   ];
 
   if (report.security.middlewareFiles.length === 0) {

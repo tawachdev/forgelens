@@ -6,7 +6,7 @@ const DEFAULT_IGNORED_DIRS = [
   ".git",
   "coverage",
   "vendor",
-  "generated"
+  "generated",
 ];
 
 const DEFAULT_IGNORED_PATTERNS = [
@@ -21,18 +21,23 @@ const DEFAULT_IGNORED_PATTERNS = [
   "public/sw.js",
   "**/public/sw.js",
   "public/**/*.map",
-  "**/public/**/*.map"
+  "**/public/**/*.map",
 ];
 
 export function defaultIgnores(outDir: string): string[] {
   const normalizedOutDir = normalizeOutDir(outDir);
   const core = DEFAULT_IGNORED_DIRS.flatMap((dir) => [
     `${dir}/**`,
-    `**/${dir}/**`
+    `**/${dir}/**`,
   ]);
 
   return normalizedOutDir
-    ? [...core, ...DEFAULT_IGNORED_PATTERNS, `${normalizedOutDir}/**`, `**/${normalizedOutDir}/**`]
+    ? [
+        ...core,
+        ...DEFAULT_IGNORED_PATTERNS,
+        `${normalizedOutDir}/**`,
+        `**/${normalizedOutDir}/**`,
+      ]
     : [...core, ...DEFAULT_IGNORED_PATTERNS];
 }
 

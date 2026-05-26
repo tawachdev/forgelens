@@ -10,19 +10,31 @@ const LARGE_FILE_BYTES = 24_000;
 
 export async function detectPerformanceRisks(
   root: string,
-  outDir: string
+  outDir: string,
 ): Promise<PerformanceRiskInfo> {
   const ignore = defaultIgnores(outDir);
   const files = await fg([CODE_FILES], { cwd: root, ignore });
   const indexed = await indexFiles(root, files);
 
   const largeFiles = await findLargeFiles(root, files);
-  const clientComponentFiles = matchingFiles(indexed, /^\s*["']use client["'];?/m);
-  const imageUsageFiles = matchingFiles(indexed, /<Image\b|next\/image|<img\b/i);
+  const clientComponentFiles = matchingFiles(
+    indexed,
+    /^\s*["']use client["'];?/m,
+  );
+  const imageUsageFiles = matchingFiles(
+    indexed,
+    /<Image\b|next\/image|<img\b/i,
+  );
   const rawImageFiles = matchingFiles(indexed, /<img\b/i);
   const fetchFiles = matchingFiles(indexed, /\bfetch\(/);
-  const uncachedFetchFiles = matchingFiles(indexed, /\bfetch\((?![\s\S]{0,180}(cache|revalidate))/);
-  const externalApiFiles = matchingFiles(indexed, /axios\.|fetch\(['"]https?:\/\//i);
+  const uncachedFetchFiles = matchingFiles(
+    indexed,
+    /\bfetch\((?![\s\S]{0,180}(cache|revalidate))/,
+  );
+  const externalApiFiles = matchingFiles(
+    indexed,
+    /axios\.|fetch\(['"]https?:\/\//i,
+  );
 
   return {
     largeFiles,
@@ -32,11 +44,20 @@ export async function detectPerformanceRisks(
     fetchFiles,
     uncachedFetchFiles,
     externalApiFiles,
-    notes: buildNotes(largeFiles, clientComponentFiles, rawImageFiles, uncachedFetchFiles, externalApiFiles)
+    notes: buildNotes(
+      largeFiles,
+      clientComponentFiles,
+      rawImageFiles,
+      uncachedFetchFiles,
+      externalApiFiles,
+    ),
   };
 }
 
-async function indexFiles(root: string, files: string[]): Promise<Array<{ file: string; text: string }>> {
+async function indexFiles(
+  root: string,
+  files: string[],
+): Promise<Array<{ file: string; text: string }>> {
   const indexed: Array<{ file: string; text: string }> = [];
 
   for (const file of files) {
@@ -50,7 +71,10 @@ async function indexFiles(root: string, files: string[]): Promise<Array<{ file: 
   return indexed;
 }
 
-async function findLargeFiles(root: string, files: string[]): Promise<string[]> {
+async function findLargeFiles(
+  root: string,
+  files: string[],
+): Promise<string[]> {
   const largeFiles: string[] = [];
 
   for (const file of files) {
@@ -63,8 +87,15 @@ async function findLargeFiles(root: string, files: string[]): Promise<string[]> 
   return uniqueSorted(largeFiles);
 }
 
-function matchingFiles(indexed: Array<{ file: string; text: string }>, pattern: RegExp): string[] {
-  return uniqueSorted(indexed.filter((entry) => pattern.test(entry.text)).map((entry) => entry.file));
+function matchingFiles(
+  indexed: Array<{ file: string; text: string }>,
+  pattern: RegExp,
+): string[] {
+  return uniqueSorted(
+    indexed
+      .filter((entry) => pattern.test(entry.text))
+      .map((entry) => entry.file),
+  );
 }
 
 function buildNotes(
@@ -72,7 +103,7 @@ function buildNotes(
   clientComponentFiles: string[],
   rawImageFiles: string[],
   uncachedFetchFiles: string[],
-  externalApiFiles: string[]
+  externalApiFiles: string[],
 ): string[] {
   const notes = [`large file threshold: ${LARGE_FILE_BYTES} bytes`];
 

@@ -26,7 +26,9 @@ export interface DoctorReport {
   warnings: string[];
 }
 
-export async function inspectRepoSafety(options: DoctorOptions): Promise<DoctorReport> {
+export async function inspectRepoSafety(
+  options: DoctorOptions,
+): Promise<DoctorReport> {
   const rootPath = resolve(options.root);
   const outputFolderPath = resolve(rootPath, options.outDir);
 
@@ -45,18 +47,23 @@ export async function inspectRepoSafety(options: DoctorOptions): Promise<DoctorR
       networkOrApiRequired: false,
       envFiles: [],
       scannableSourceFiles: 0,
-      warnings: ["Root path does not exist."]
+      warnings: ["Root path does not exist."],
     };
   }
 
   const packageJsonExists = await pathExists(resolve(rootPath, "package.json"));
   const project = await detectProject(rootPath);
   const security = await detectSecurity(rootPath, options.outDir);
-  const scannableSourceFiles = await detectScannableSourceFiles(rootPath, options.outDir);
+  const scannableSourceFiles = await detectScannableSourceFiles(
+    rootPath,
+    options.outDir,
+  );
   const warnings: string[] = [];
 
   if (!packageJsonExists) {
-    warnings.push("No package.json found at root. Check if --root points to the real project root.");
+    warnings.push(
+      "No package.json found at root. Check if --root points to the real project root.",
+    );
   }
 
   if (scannableSourceFiles === 0) {
@@ -76,7 +83,7 @@ export async function inspectRepoSafety(options: DoctorOptions): Promise<DoctorR
     networkOrApiRequired: false,
     envFiles: security.envFiles,
     scannableSourceFiles,
-    warnings
+    warnings,
   };
 }
 
@@ -92,7 +99,7 @@ export function renderDoctorReport(report: DoctorReport): string {
     `- Output folder path valid: ${status(report.outputPathValid)}`,
     `- Source repo will not be modified: ${status(report.sourceRepoWillNotBeModified)}`,
     `- Network/API usage needed: ${report.networkOrApiRequired ? "yes" : "no"}`,
-    `- Scannable source files: ${report.scannableSourceFiles}`
+    `- Scannable source files: ${report.scannableSourceFiles}`,
   ];
 
   if (report.envFiles.length > 0) {
@@ -136,10 +143,13 @@ function isValidOutputPath(root: string, output: string): boolean {
   return output.startsWith(`${root}/`);
 }
 
-async function detectScannableSourceFiles(root: string, outDir: string): Promise<number> {
+async function detectScannableSourceFiles(
+  root: string,
+  outDir: string,
+): Promise<number> {
   const files = await fg(["**/*.@(ts|tsx|js|jsx)"], {
     cwd: root,
-    ignore: defaultIgnores(outDir)
+    ignore: defaultIgnores(outDir),
   });
   return files.length;
 }

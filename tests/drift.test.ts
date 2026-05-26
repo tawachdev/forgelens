@@ -20,7 +20,7 @@ afterEach(async () => {
   await Promise.all(
     createdDirs.splice(0).map(async (dir) => {
       await rm(dir, { recursive: true, force: true });
-    })
+    }),
   );
 });
 
@@ -34,13 +34,23 @@ describe("drift", () => {
     const result = await runDrift({
       baseline: paths.baselinePath,
       current: paths.currentPath,
-      outDir: paths.outDir
+      outDir: paths.outDir,
     });
 
     expect(result.report.summary.high).toBeGreaterThan(0);
-    expect(result.report.changes.some((change) => change.title === "API route drift")).toBe(true);
-    expect(result.report.changes.some((change) => change.title === "Server action drift")).toBe(true);
-    expect(result.report.changes.some((change) => change.title === "Schema drift")).toBe(true);
+    expect(
+      result.report.changes.some(
+        (change) => change.title === "API route drift",
+      ),
+    ).toBe(true);
+    expect(
+      result.report.changes.some(
+        (change) => change.title === "Server action drift",
+      ),
+    ).toBe(true);
+    expect(
+      result.report.changes.some((change) => change.title === "Schema drift"),
+    ).toBe(true);
     expect(result.files.DRIFT_REPORT).toBeDefined();
     expect(result.files.DRIFT_REPORT_JSON).toBeDefined();
 
@@ -59,7 +69,7 @@ describe("drift", () => {
 
     const result = await runDrift({
       baseline: paths.baselinePath,
-      current: paths.currentPath
+      current: paths.currentPath,
     });
 
     expect(result.report.summary.total).toBe(0);
@@ -74,54 +84,71 @@ describe("drift", () => {
     const result = await runBaselineSave({
       root: fixtureRoot,
       outDir,
-      name: "main"
+      name: "main",
     });
 
-    expect(normalizePathForAssert(result.baselinePath)).toContain("baselines/main.json");
+    expect(normalizePathForAssert(result.baselinePath)).toContain(
+      "baselines/main.json",
+    );
     expect(result.report.routes.length).toBeGreaterThan(0);
   });
 
   it("detects drift across a git range without changing the worktree", async () => {
     const root = await createGitFixture();
-    const { stdout } = await execFileAsync("git", ["-C", root, "rev-parse", "HEAD~1"]);
+    const { stdout } = await execFileAsync("git", [
+      "-C",
+      root,
+      "rev-parse",
+      "HEAD~1",
+    ]);
     const baselineRef = stdout.trim();
 
     const result = await runGitDrift({
       root,
-      range: `${baselineRef}..HEAD`
+      range: `${baselineRef}..HEAD`,
     });
 
     expect(result.report.summary.high).toBeGreaterThan(0);
-    expect(result.report.changes.some((change) => change.title === "API route drift")).toBe(true);
-    expect(result.report.changes.some((change) => change.title === "Server action drift")).toBe(true);
+    expect(
+      result.report.changes.some(
+        (change) => change.title === "API route drift",
+      ),
+    ).toBe(true);
+    expect(
+      result.report.changes.some(
+        (change) => change.title === "Server action drift",
+      ),
+    ).toBe(true);
   });
 });
 
 function removeRiskSignals(report: RepoReport): RepoReport {
   return {
     ...report,
-    routes: report.routes.filter((route) => route.kind !== "api" && !route.route.includes("/admin")),
+    routes: report.routes.filter(
+      (route) => route.kind !== "api" && !route.route.includes("/admin"),
+    ),
     database: {
       ...report.database,
       migrations: [],
-      schemaFiles: []
+      schemaFiles: [],
     },
     serverActions: {
       count: 0,
-      files: []
+      files: [],
     },
     env: {
       ...report.env,
       referencedKeys: [],
-      missingExampleKeys: []
+      missingExampleKeys: [],
     },
-    focusFiles: []
+    focusFiles: [],
   };
 }
 
 async function writeReports(
   baseline: RepoReport,
-  current: RepoReport
+  current: RepoReport,
 ): Promise<{ baselinePath: string; currentPath: string; outDir: string }> {
   const root = await mkdtemp(join(tmpdir(), "forgelens-drift-"));
   createdDirs.push(root);
@@ -133,7 +160,7 @@ async function writeReports(
   await mkdir(outDir, { recursive: true });
   await Promise.all([
     writeFile(baselinePath, `${JSON.stringify(baseline, null, 2)}\n`),
-    writeFile(currentPath, `${JSON.stringify(current, null, 2)}\n`)
+    writeFile(currentPath, `${JSON.stringify(current, null, 2)}\n`),
   ]);
 
   return { baselinePath, currentPath, outDir };
@@ -146,21 +173,42 @@ async function createGitFixture(): Promise<string> {
   await mkdir(join(root, "app"), { recursive: true });
   await writeFile(
     join(root, "package.json"),
-    JSON.stringify({ name: "git-fixture", dependencies: { next: "15.0.0" } })
+    JSON.stringify({ name: "git-fixture", dependencies: { next: "15.0.0" } }),
   );
   await writeFile(join(root, "tsconfig.json"), "{}\n");
-  await writeFile(join(root, "app/page.tsx"), "export default function Page() { return null; }\n");
+  await writeFile(
+    join(root, "app/page.tsx"),
+    "export default function Page() { return null; }\n",
+  );
 
   await execFileAsync("git", ["-C", root, "init"]);
-  await execFileAsync("git", ["-C", root, "config", "user.email", "test@example.com"]);
-  await execFileAsync("git", ["-C", root, "config", "user.name", "ForgeLens Test"]);
+  await execFileAsync("git", [
+    "-C",
+    root,
+    "config",
+    "user.email",
+    "test@example.com",
+  ]);
+  await execFileAsync("git", [
+    "-C",
+    root,
+    "config",
+    "user.name",
+    "ForgeLens Test",
+  ]);
   await execFileAsync("git", ["-C", root, "add", "."]);
   await execFileAsync("git", ["-C", root, "commit", "-m", "initial"]);
 
   await mkdir(join(root, "app/api/admin/export"), { recursive: true });
   await mkdir(join(root, "app/actions"), { recursive: true });
-  await writeFile(join(root, "app/api/admin/export/route.ts"), "export async function GET() { return Response.json({ ok: true }); }\n");
-  await writeFile(join(root, "app/actions/admin.ts"), "\"use server\";\nexport async function saveAdmin() { return { ok: true }; }\n");
+  await writeFile(
+    join(root, "app/api/admin/export/route.ts"),
+    "export async function GET() { return Response.json({ ok: true }); }\n",
+  );
+  await writeFile(
+    join(root, "app/actions/admin.ts"),
+    '"use server";\nexport async function saveAdmin() { return { ok: true }; }\n',
+  );
   await execFileAsync("git", ["-C", root, "add", "."]);
   await execFileAsync("git", ["-C", root, "commit", "-m", "add risky edges"]);
 

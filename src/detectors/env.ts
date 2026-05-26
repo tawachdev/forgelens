@@ -5,7 +5,12 @@ import { defaultIgnores } from "../utils/ignore.js";
 import type { EnvKeyGroups, EnvSafetyInfo } from "../types.js";
 
 const CODE_FILES = "**/*.@(ts|tsx|js|jsx|mjs|cjs)";
-const PUBLIC_ENV_PREFIXES = ["NEXT_PUBLIC_", "PUBLIC_", "VITE_", "NUXT_PUBLIC_"];
+const PUBLIC_ENV_PREFIXES = [
+  "NEXT_PUBLIC_",
+  "PUBLIC_",
+  "VITE_",
+  "NUXT_PUBLIC_",
+];
 const SECRET_KEY_PARTS = [
   "SECRET",
   "TOKEN",
@@ -13,29 +18,40 @@ const SECRET_KEY_PARTS = [
   "PRIVATE",
   "SERVICE_ROLE",
   "DATABASE_URL",
-  "WEBHOOK"
+  "WEBHOOK",
 ];
 
-export async function detectEnvSafety(root: string, outDir: string): Promise<EnvSafetyInfo> {
+export async function detectEnvSafety(
+  root: string,
+  outDir: string,
+): Promise<EnvSafetyInfo> {
   const ignore = defaultIgnores(outDir);
   const [envFiles, codeFiles] = await Promise.all([
     fg([".env*", "**/.env*"], { cwd: root, ignore, dot: true }),
-    fg([CODE_FILES], { cwd: root, ignore })
+    fg([CODE_FILES], { cwd: root, ignore }),
   ]);
 
   const exampleFiles = envFiles.filter(isExampleEnvFile).sort();
   const exampleKeys = await collectExampleKeys(root, exampleFiles);
   const codeIndex = await indexCode(root, codeFiles);
-  const referencedKeys = uniqueSorted(codeIndex.flatMap((entry) => extractReferencedEnvKeys(entry.text)));
-  const missingExampleKeys = referencedKeys.filter((key) => !exampleKeys.includes(key));
-  const publicRiskKeys = referencedKeys.filter((key) => isPublicEnvKey(key) && looksSecretLike(key));
+  const referencedKeys = uniqueSorted(
+    codeIndex.flatMap((entry) => extractReferencedEnvKeys(entry.text)),
+  );
+  const missingExampleKeys = referencedKeys.filter(
+    (key) => !exampleKeys.includes(key),
+  );
+  const publicRiskKeys = referencedKeys.filter(
+    (key) => isPublicEnvKey(key) && looksSecretLike(key),
+  );
   const serverSecretClientFiles = uniqueSorted(
     codeIndex
       .filter((entry) => isClientFile(entry.text))
       .filter((entry) =>
-        extractReferencedEnvKeys(entry.text).some((key) => !isPublicEnvKey(key) && looksSecretLike(key))
+        extractReferencedEnvKeys(entry.text).some(
+          (key) => !isPublicEnvKey(key) && looksSecretLike(key),
+        ),
       )
-      .map((entry) => entry.file)
+      .map((entry) => entry.file),
   );
 
   return {
@@ -47,11 +63,20 @@ export async function detectEnvSafety(root: string, outDir: string): Promise<Env
     publicRiskKeys,
     serverSecretClientFiles,
     groups: groupEnvKeys(referencedKeys),
-    notes: buildEnvNotes(envFiles, exampleFiles, referencedKeys, missingExampleKeys, publicRiskKeys)
+    notes: buildEnvNotes(
+      envFiles,
+      exampleFiles,
+      referencedKeys,
+      missingExampleKeys,
+      publicRiskKeys,
+    ),
   };
 }
 
-async function collectExampleKeys(root: string, files: string[]): Promise<string[]> {
+async function collectExampleKeys(
+  root: string,
+  files: string[],
+): Promise<string[]> {
   const keys: string[] = [];
 
   for (const file of files) {
@@ -65,7 +90,10 @@ async function collectExampleKeys(root: string, files: string[]): Promise<string
   return uniqueSorted(keys);
 }
 
-async function indexCode(root: string, files: string[]): Promise<Array<{ file: string; text: string }>> {
+async function indexCode(
+  root: string,
+  files: string[],
+): Promise<Array<{ file: string; text: string }>> {
   const indexed: Array<{ file: string; text: string }> = [];
 
   for (const file of files) {
@@ -86,7 +114,7 @@ function extractEnvFileKeys(text: string): string[] {
       .map((line) => line.trim())
       .filter((line) => line.length > 0 && !line.startsWith("#"))
       .map((line) => line.match(/^(?:export\s+)?([A-Z0-9_]+)\s*=/)?.[1])
-      .filter((key): key is string => Boolean(key))
+      .filter((key): key is string => Boolean(key)),
   );
 }
 
@@ -115,7 +143,11 @@ function extractReferencedEnvKeys(text: string): string[] {
 
 function isExampleEnvFile(file: string): boolean {
   const lower = file.toLowerCase();
-  return lower.includes(".example") || lower.includes(".sample") || lower.endsWith(".env.template");
+  return (
+    lower.includes(".example") ||
+    lower.includes(".sample") ||
+    lower.endsWith(".env.template")
+  );
 }
 
 function isPublicEnvKey(key: string): boolean {
@@ -135,12 +167,12 @@ function buildEnvNotes(
   exampleFiles: string[],
   referencedKeys: string[],
   missingExampleKeys: string[],
-  publicRiskKeys: string[]
+  publicRiskKeys: string[],
 ): string[] {
   const notes = [
     `env files found: ${envFiles.length}`,
     `example env files found: ${exampleFiles.length}`,
-    `env keys referenced in code: ${referencedKeys.length}`
+    `env keys referenced in code: ${referencedKeys.length}`,
   ];
 
   if (missingExampleKeys.length > 0) {
@@ -165,7 +197,7 @@ function groupEnvKeys(keys: string[]): EnvKeyGroups {
     observability: [],
     testAndCi: [],
     debug: [],
-    other: []
+    other: [],
   };
 
   for (const key of keys) {
@@ -205,7 +237,7 @@ function groupEnvKeys(keys: string[]): EnvKeyGroups {
     observability: uniqueSorted(groups.observability),
     testAndCi: uniqueSorted(groups.testAndCi),
     debug: uniqueSorted(groups.debug),
-    other: uniqueSorted(groups.other)
+    other: uniqueSorted(groups.other),
   };
 }
 

@@ -5,49 +5,52 @@ import type { RouteItem } from "../types.js";
 
 const APP_PAGE_GLOBS = [
   "app/**/page.@(ts|tsx|js|jsx|mdx)",
-  "src/app/**/page.@(ts|tsx|js|jsx|mdx)"
+  "src/app/**/page.@(ts|tsx|js|jsx|mdx)",
 ];
 const APP_API_GLOBS = [
   "app/**/route.@(ts|tsx|js|jsx)",
-  "src/app/**/route.@(ts|tsx|js|jsx)"
+  "src/app/**/route.@(ts|tsx|js|jsx)",
 ];
 const PAGES_API_GLOBS = [
   "pages/api/**/*.@(ts|tsx|js|jsx)",
-  "src/pages/api/**/*.@(ts|tsx|js|jsx)"
+  "src/pages/api/**/*.@(ts|tsx|js|jsx)",
 ];
 
-export async function detectRoutes(root: string, outDir: string): Promise<RouteItem[]> {
+export async function detectRoutes(
+  root: string,
+  outDir: string,
+): Promise<RouteItem[]> {
   const ignore = defaultIgnores(outDir);
 
   const [appPages, appApiRoutes, pagesApiRoutes] = await Promise.all([
     fg(APP_PAGE_GLOBS, { cwd: root, ignore, dot: false }),
     fg(APP_API_GLOBS, { cwd: root, ignore, dot: false }),
-    fg(PAGES_API_GLOBS, { cwd: root, ignore, dot: false })
+    fg(PAGES_API_GLOBS, { cwd: root, ignore, dot: false }),
   ]);
 
   const pageItems = appPages.map((file) => ({
     kind: "page" as const,
     route: appPageToRoute(file),
     file,
-    source: "app" as const
+    source: "app" as const,
   }));
 
   const appApiItems = appApiRoutes.map((file) => ({
     kind: "api" as const,
     route: appApiToRoute(file),
     file,
-    source: "app" as const
+    source: "app" as const,
   }));
 
   const pagesApiItems = pagesApiRoutes.map((file) => ({
     kind: "api" as const,
     route: pagesApiToRoute(file),
     file,
-    source: "pages" as const
+    source: "pages" as const,
   }));
 
   return [...pageItems, ...appApiItems, ...pagesApiItems].sort((a, b) =>
-    a.route.localeCompare(b.route)
+    a.route.localeCompare(b.route),
   );
 }
 

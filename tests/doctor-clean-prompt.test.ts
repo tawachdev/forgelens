@@ -26,7 +26,7 @@ describe("doctor", () => {
     try {
       await writeFile(
         join(root, "package.json"),
-        JSON.stringify({ name: "tmp", dependencies: { next: "15.0.0" } })
+        JSON.stringify({ name: "tmp", dependencies: { next: "15.0.0" } }),
       );
       await writeFile(join(root, ".env.example"), "DATABASE_URL=\n");
 
@@ -66,13 +66,15 @@ describe("clean", () => {
         root,
         outDir: ".forgelens",
         yes: true,
-        logger: { log: (line: string) => logs.push(line) }
+        logger: { log: (line: string) => logs.push(line) },
       });
 
       expect(result.removed).toBe(true);
       const logText = logs.join("\n");
       expect(logText).toContain("Planned removal:");
-      expect(normalizePathForAssert(logText)).toContain(normalizePathForAssert(generatedFile));
+      expect(normalizePathForAssert(logText)).toContain(
+        normalizePathForAssert(generatedFile),
+      );
       expect(await exists(outDir)).toBe(false);
       expect(await exists(keepFile)).toBe(true);
     } finally {
@@ -88,8 +90,8 @@ describe("clean", () => {
         runClean({
           root,
           outDir: "../outside-root",
-          yes: true
-        })
+          yes: true,
+        }),
       ).rejects.toThrow("Refusing to delete outside the selected root folder.");
     } finally {
       await rm(root, { recursive: true, force: true });

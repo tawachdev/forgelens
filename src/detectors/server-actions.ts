@@ -8,7 +8,7 @@ const CODE_FILES = "**/*.@(ts|tsx|js|jsx)";
 
 export async function detectServerActions(
   root: string,
-  outDir: string
+  outDir: string,
 ): Promise<ServerActionsInfo> {
   const ignore = defaultIgnores(outDir);
   const files = await fg([CODE_FILES], { cwd: root, ignore });
@@ -31,7 +31,7 @@ export async function detectServerActions(
 
   return {
     count: uniqueFiles.length,
-    files: uniqueFiles
+    files: uniqueFiles,
   };
 }
 

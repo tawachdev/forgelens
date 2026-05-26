@@ -22,51 +22,68 @@ program
   .description("Scan a repository and generate context markdown files")
   .option("--out <path>", "output folder (inside root)", ".forgelens")
   .option("--root <path>", "repository root path", ".")
-  .option("--format <format>", "output format (markdown, json, all)", "markdown")
+  .option(
+    "--format <format>",
+    "output format (markdown, json, all)",
+    "markdown",
+  )
   .option("--verbose", "print scan details", false)
   .addHelpText(
     "after",
-    "\nExamples:\n  forgelens scan\n  forgelens scan --root . --out .forgelens --verbose\n  forgelens scan --format all"
+    "\nExamples:\n  forgelens scan\n  forgelens scan --root . --out .forgelens --verbose\n  forgelens scan --format all",
   )
-  .action(async (cmdOptions: { out: string; root: string; format: string; verbose: boolean }) => {
-    const options: ScanOptions = {
-      outDir: cmdOptions.out,
-      root: cmdOptions.root,
-      format: cmdOptions.format as OutputFormat,
-      verbose: Boolean(cmdOptions.verbose)
-    };
+  .action(
+    async (cmdOptions: {
+      out: string;
+      root: string;
+      format: string;
+      verbose: boolean;
+    }) => {
+      const options: ScanOptions = {
+        outDir: cmdOptions.out,
+        root: cmdOptions.root,
+        format: cmdOptions.format as OutputFormat,
+        verbose: Boolean(cmdOptions.verbose),
+      };
 
-    try {
-      const result = await runScan(options);
+      try {
+        const result = await runScan(options);
 
-      if (options.verbose) {
-        console.log(`Root: ${result.report.root}`);
-        console.log(`Routes found: ${result.report.routes.length}`);
-        console.log(`Server actions found: ${result.report.serverActions.count}`);
+        if (options.verbose) {
+          console.log(`Root: ${result.report.root}`);
+          console.log(`Routes found: ${result.report.routes.length}`);
+          console.log(
+            `Server actions found: ${result.report.serverActions.count}`,
+          );
+        }
+
+        console.log(`ForgeLens scan complete: ${result.outDirAbsolute}`);
+        for (const [name, filePath] of Object.entries(result.files)) {
+          console.log(`- ${name}: ${filePath}`);
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+        console.error(`ForgeLens scan failed: ${message}`);
+        process.exitCode = 1;
       }
-
-      console.log(`ForgeLens scan complete: ${result.outDirAbsolute}`);
-      for (const [name, filePath] of Object.entries(result.files)) {
-        console.log(`- ${name}: ${filePath}`);
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      console.error(`ForgeLens scan failed: ${message}`);
-      process.exitCode = 1;
-    }
-  });
+    },
+  );
 
 program
   .command("doctor")
   .description("Check scan safety/readiness without writing any files")
   .option("--root <path>", "repository root path", ".")
   .option("--out <path>", "output folder that scan would use", ".forgelens")
-  .addHelpText("after", "\nExample:\n  forgelens doctor --root . --out .forgelens")
+  .addHelpText(
+    "after",
+    "\nExample:\n  forgelens doctor --root . --out .forgelens",
+  )
   .action(async (cmdOptions: { root: string; out: string }) => {
     try {
       const report = await inspectRepoSafety({
         root: cmdOptions.root,
-        outDir: cmdOptions.out
+        outDir: cmdOptions.out,
       });
       console.log(renderDoctorReport(report));
     } catch (error) {
@@ -88,7 +105,7 @@ program
       await runClean({
         root: cmdOptions.root,
         outDir: cmdOptions.out,
-        yes: Boolean(cmdOptions.yes)
+        yes: Boolean(cmdOptions.yes),
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
@@ -113,7 +130,7 @@ baselineCommand
       const result = await runBaselineSave({
         root: cmdOptions.root,
         outDir: cmdOptions.out,
-        name: cmdOptions.name
+        name: cmdOptions.name,
       });
 
       console.log(`ForgeLens baseline saved: ${result.baselinePath}`);
@@ -128,7 +145,9 @@ baselineCommand
 
 program
   .command("drift")
-  .description("Compare two ForgeLens JSON reports and flag risky context drift")
+  .description(
+    "Compare two ForgeLens JSON reports and flag risky context drift",
+  )
   .option("--baseline <path>", "older .forgelens/REPO_REPORT.json path")
   .option("--current <path>", "newer .forgelens/REPO_REPORT.json path")
   .option("--from <name>", "named baseline from the output folder")
@@ -137,65 +156,72 @@ program
   .option("--out <path>", "optional output folder for DRIFT_REPORT files")
   .addHelpText(
     "after",
-    "\nExamples:\n  forgelens drift --baseline .forgelens/baseline.json --current .forgelens/REPO_REPORT.json --out .forgelens\n  forgelens drift --from latest --out .forgelens\n  forgelens drift --git main..HEAD --out .forgelens"
+    "\nExamples:\n  forgelens drift --baseline .forgelens/baseline.json --current .forgelens/REPO_REPORT.json --out .forgelens\n  forgelens drift --from latest --out .forgelens\n  forgelens drift --git main..HEAD --out .forgelens",
   )
-  .action(async (cmdOptions: {
-    baseline?: string;
-    current?: string;
-    from?: string;
-    git?: string;
-    root: string;
-    out?: string;
-  }) => {
-    try {
-      let result: Awaited<ReturnType<typeof runDrift>>;
+  .action(
+    async (cmdOptions: {
+      baseline?: string;
+      current?: string;
+      from?: string;
+      git?: string;
+      root: string;
+      out?: string;
+    }) => {
+      try {
+        let result: Awaited<ReturnType<typeof runDrift>>;
 
-      if (cmdOptions.git) {
-        result = await runGitDrift({
-          root: cmdOptions.root,
-          range: cmdOptions.git,
-          outDir: cmdOptions.out ? resolve(cmdOptions.root, cmdOptions.out) : undefined
-        });
-      } else if (cmdOptions.from) {
-        const outDir = cmdOptions.out ?? ".forgelens";
-        const scanResult = await runScan({
-          root: cmdOptions.root,
-          outDir,
-          format: "all",
-          verbose: false
-        });
+        if (cmdOptions.git) {
+          result = await runGitDrift({
+            root: cmdOptions.root,
+            range: cmdOptions.git,
+            outDir: cmdOptions.out
+              ? resolve(cmdOptions.root, cmdOptions.out)
+              : undefined,
+          });
+        } else if (cmdOptions.from) {
+          const outDir = cmdOptions.out ?? ".forgelens";
+          const scanResult = await runScan({
+            root: cmdOptions.root,
+            outDir,
+            format: "all",
+            verbose: false,
+          });
 
-        result = await runDrift({
-          baseline: baselinePathFor(cmdOptions.root, outDir, cmdOptions.from),
-          current: scanResult.files.REPO_REPORT_JSON,
-          outDir: resolve(cmdOptions.root, outDir)
-        });
-      } else {
-        if (!cmdOptions.baseline || !cmdOptions.current) {
-          throw new Error("Provide --baseline and --current, or use --from, or use --git.");
+          result = await runDrift({
+            baseline: baselinePathFor(cmdOptions.root, outDir, cmdOptions.from),
+            current: scanResult.files.REPO_REPORT_JSON,
+            outDir: resolve(cmdOptions.root, outDir),
+          });
+        } else {
+          if (!cmdOptions.baseline || !cmdOptions.current) {
+            throw new Error(
+              "Provide --baseline and --current, or use --from, or use --git.",
+            );
+          }
+
+          result = await runDrift({
+            baseline: cmdOptions.baseline,
+            current: cmdOptions.current,
+            outDir: cmdOptions.out,
+          });
         }
 
-        result = await runDrift({
-          baseline: cmdOptions.baseline,
-          current: cmdOptions.current,
-          outDir: cmdOptions.out
-        });
-      }
-
-      console.log(renderDriftReport(result.report));
-      if (Object.keys(result.files).length > 0) {
-        console.log("");
-        console.log("ForgeLens drift files written:");
-        for (const [name, filePath] of Object.entries(result.files)) {
-          console.log(`- ${name}: ${filePath}`);
+        console.log(renderDriftReport(result.report));
+        if (Object.keys(result.files).length > 0) {
+          console.log("");
+          console.log("ForgeLens drift files written:");
+          for (const [name, filePath] of Object.entries(result.files)) {
+            console.log(`- ${name}: ${filePath}`);
+          }
         }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+        console.error(`ForgeLens drift failed: ${message}`);
+        process.exitCode = 1;
       }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      console.error(`ForgeLens drift failed: ${message}`);
-      process.exitCode = 1;
-    }
-  });
+    },
+  );
 
 const promptCommand = program
   .command("prompt")

@@ -35,12 +35,12 @@ export async function detectProject(root: string): Promise<ProjectInfo> {
     packageManager,
     scripts: pkg?.scripts ?? {},
     dependencies,
-    devDependencies
+    devDependencies,
   };
 }
 
 async function detectPackageManager(
-  root: string
+  root: string,
 ): Promise<ProjectInfo["packageManager"]> {
   if (await fileExists(join(root, "pnpm-lock.yaml"))) {
     return "pnpm";

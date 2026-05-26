@@ -15,7 +15,7 @@ import type {
   FocusFileScore,
   GeneratedReportFiles,
   RepoReport,
-  RouteItem
+  RouteItem,
 } from "./types.js";
 
 const MARKDOWN_ITEM_LIMIT = 8;
@@ -35,11 +35,13 @@ export async function runDrift(options: DriftOptions): Promise<{
   const currentPath = resolve(options.current);
   const [baseline, current] = await Promise.all([
     readRepoReport(baselinePath),
-    readRepoReport(currentPath)
+    readRepoReport(currentPath),
   ]);
 
   const report = buildDriftReport(baseline, current, baselinePath, currentPath);
-  const files = options.outDir ? await writeDriftReports(report, resolve(options.outDir)) : {};
+  const files = options.outDir
+    ? await writeDriftReports(report, resolve(options.outDir))
+    : {};
 
   return { report, files };
 }
@@ -62,21 +64,23 @@ export async function runGitDrift(options: {
 
     await Promise.all([
       exportGitTree(rootAbsolute, baselineRef, baselineRoot),
-      exportGitTree(rootAbsolute, currentRef, currentRoot)
+      exportGitTree(rootAbsolute, currentRef, currentRoot),
     ]);
 
     const [baseline, current] = await Promise.all([
       scanRepo(baselineRoot, ".forgelens"),
-      scanRepo(currentRoot, ".forgelens")
+      scanRepo(currentRoot, ".forgelens"),
     ]);
 
     const report = buildDriftReport(
       baseline,
       current,
       `git:${baselineRef}`,
-      `git:${currentRef}`
+      `git:${currentRef}`,
     );
-    const files = options.outDir ? await writeDriftReports(report, resolve(rootAbsolute, options.outDir)) : {};
+    const files = options.outDir
+      ? await writeDriftReports(report, resolve(rootAbsolute, options.outDir))
+      : {};
 
     return { report, files };
   } finally {
@@ -88,7 +92,7 @@ export function buildDriftReport(
   baseline: RepoReport,
   current: RepoReport,
   baselinePath: string,
-  currentPath: string
+  currentPath: string,
 ): DriftReport {
   const changes = [
     ...buildAuthChanges(baseline, current),
@@ -97,7 +101,7 @@ export function buildDriftReport(
     ...buildDatabaseChanges(baseline, current),
     ...buildEnvChanges(baseline, current),
     ...buildSecurityChanges(baseline, current),
-    ...buildFocusChanges(baseline, current)
+    ...buildFocusChanges(baseline, current),
   ];
 
   return {
@@ -109,9 +113,9 @@ export function buildDriftReport(
       high: changes.filter((change) => change.severity === "high").length,
       medium: changes.filter((change) => change.severity === "medium").length,
       low: changes.filter((change) => change.severity === "low").length,
-      total: changes.length
+      total: changes.length,
     },
-    recommendations: buildRecommendations(changes)
+    recommendations: buildRecommendations(changes),
   };
 }
 
@@ -134,22 +138,22 @@ export function renderDriftReport(report: DriftReport): string {
     ...renderDriftChanges(report.changes),
     "",
     "## Recommendations",
-    ...renderPlainList(report.recommendations)
+    ...renderPlainList(report.recommendations),
   ].join("\n");
 }
 
 async function writeDriftReports(
   report: DriftReport,
-  outDirAbsolute: string
+  outDirAbsolute: string,
 ): Promise<GeneratedReportFiles> {
   const files = {
     DRIFT_REPORT: join(outDirAbsolute, "DRIFT_REPORT.md"),
-    DRIFT_REPORT_JSON: join(outDirAbsolute, "DRIFT_REPORT.json")
+    DRIFT_REPORT_JSON: join(outDirAbsolute, "DRIFT_REPORT.json"),
   };
 
   await Promise.all([
     writeText(files.DRIFT_REPORT, renderDriftReport(report)),
-    writeText(files.DRIFT_REPORT_JSON, `${JSON.stringify(report, null, 2)}\n`)
+    writeText(files.DRIFT_REPORT_JSON, `${JSON.stringify(report, null, 2)}\n`),
   ]);
 
   return files;
@@ -166,7 +170,10 @@ async function readRepoReport(path: string): Promise<RepoReport> {
   return parsed;
 }
 
-function parseGitRange(range: string): { baselineRef: string; currentRef: string } {
+function parseGitRange(range: string): {
+  baselineRef: string;
+  currentRef: string;
+} {
   const normalized = range.trim();
   const delimiter = normalized.includes("...") ? "..." : "..";
   const [baselineRef, currentRef] = normalized.split(delimiter);
@@ -178,18 +185,38 @@ function parseGitRange(range: string): { baselineRef: string; currentRef: string
   return { baselineRef, currentRef };
 }
 
-async function exportGitTree(root: string, ref: string, outDir: string): Promise<void> {
+async function exportGitTree(
+  root: string,
+  ref: string,
+  outDir: string,
+): Promise<void> {
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
-  await execFileAsync("git", ["clone", "--quiet", "--no-checkout", root, outDir]);
-  await execFileAsync("git", ["-C", outDir, "checkout", "--detach", "--quiet", ref]);
+  await execFileAsync("git", [
+    "clone",
+    "--quiet",
+    "--no-checkout",
+    root,
+    outDir,
+  ]);
+  await execFileAsync("git", [
+    "-C",
+    outDir,
+    "checkout",
+    "--detach",
+    "--quiet",
+    ref,
+  ]);
 
   // Keep scan fast and avoid reading git history metadata.
   await rm(join(outDir, ".git"), { recursive: true, force: true });
 }
 
-function buildAuthChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {
+function buildAuthChanges(
+  baseline: RepoReport,
+  current: RepoReport,
+): DriftChange[] {
   return [
     compareValues({
       category: "auth",
@@ -197,7 +224,7 @@ function buildAuthChanges(baseline: RepoReport, current: RepoReport): DriftChang
       title: "Auth provider drift",
       baseline: signalNames(baseline.auth.providers),
       current: signalNames(current.auth.providers),
-      note: "Auth provider changes can make agent rules stale around login and sessions."
+      note: "Auth provider changes can make agent rules stale around login and sessions.",
     }),
     compareValues({
       category: "auth",
@@ -205,14 +232,21 @@ function buildAuthChanges(baseline: RepoReport, current: RepoReport): DriftChang
       title: "Middleware drift",
       baseline: baseline.security.middlewareFiles,
       current: current.security.middlewareFiles,
-      note: "Middleware changes can alter route protection boundaries."
-    })
+      note: "Middleware changes can alter route protection boundaries.",
+    }),
   ].filter(isChange);
 }
 
-function buildRouteChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {
-  const baselineApi = baseline.routes.filter((route) => route.kind === "api").map(routeKey);
-  const currentApi = current.routes.filter((route) => route.kind === "api").map(routeKey);
+function buildRouteChanges(
+  baseline: RepoReport,
+  current: RepoReport,
+): DriftChange[] {
+  const baselineApi = baseline.routes
+    .filter((route) => route.kind === "api")
+    .map(routeKey);
+  const currentApi = current.routes
+    .filter((route) => route.kind === "api")
+    .map(routeKey);
   const baselineAdmin = baseline.routes.filter(isAdminRoute).map(routeKey);
   const currentAdmin = current.routes.filter(isAdminRoute).map(routeKey);
 
@@ -223,7 +257,7 @@ function buildRouteChanges(baseline: RepoReport, current: RepoReport): DriftChan
       title: "API route drift",
       baseline: baselineApi,
       current: currentApi,
-      note: "New or removed API routes change exposed server boundaries."
+      note: "New or removed API routes change exposed server boundaries.",
     }),
     compareValues({
       category: "routes",
@@ -231,12 +265,15 @@ function buildRouteChanges(baseline: RepoReport, current: RepoReport): DriftChan
       title: "Admin route drift",
       baseline: baselineAdmin,
       current: currentAdmin,
-      note: "Admin route changes need auth, role, and ownership review."
-    })
+      note: "Admin route changes need auth, role, and ownership review.",
+    }),
   ].filter(isChange);
 }
 
-function buildServerActionChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {
+function buildServerActionChanges(
+  baseline: RepoReport,
+  current: RepoReport,
+): DriftChange[] {
   return [
     compareValues({
       category: "server-actions",
@@ -244,12 +281,15 @@ function buildServerActionChanges(baseline: RepoReport, current: RepoReport): Dr
       title: "Server action drift",
       baseline: baseline.serverActions.files,
       current: current.serverActions.files,
-      note: "Server action changes can introduce new data mutations."
-    })
+      note: "Server action changes can introduce new data mutations.",
+    }),
   ].filter(isChange);
 }
 
-function buildDatabaseChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {
+function buildDatabaseChanges(
+  baseline: RepoReport,
+  current: RepoReport,
+): DriftChange[] {
   return [
     compareValues({
       category: "database",
@@ -257,7 +297,7 @@ function buildDatabaseChanges(baseline: RepoReport, current: RepoReport): DriftC
       title: "Database provider drift",
       baseline: signalNames(baseline.database.providers),
       current: signalNames(current.database.providers),
-      note: "Provider changes can affect data access assumptions."
+      note: "Provider changes can affect data access assumptions.",
     }),
     compareValues({
       category: "database",
@@ -265,7 +305,7 @@ function buildDatabaseChanges(baseline: RepoReport, current: RepoReport): DriftC
       title: "Migration drift",
       baseline: baseline.database.migrations,
       current: current.database.migrations,
-      note: "Migration changes need schema and data-safety review."
+      note: "Migration changes need schema and data-safety review.",
     }),
     compareValues({
       category: "database",
@@ -273,7 +313,7 @@ function buildDatabaseChanges(baseline: RepoReport, current: RepoReport): DriftC
       title: "Schema drift",
       baseline: baseline.database.schemaFiles,
       current: current.database.schemaFiles,
-      note: "Schema changes can change data access and validation rules."
+      note: "Schema changes can change data access and validation rules.",
     }),
     compareValues({
       category: "database",
@@ -281,12 +321,15 @@ function buildDatabaseChanges(baseline: RepoReport, current: RepoReport): DriftC
       title: "Database client drift",
       baseline: baseline.database.clientFiles,
       current: current.database.clientFiles,
-      note: "Database client changes can alter query and tenant-scope behavior."
-    })
+      note: "Database client changes can alter query and tenant-scope behavior.",
+    }),
   ].filter(isChange);
 }
 
-function buildEnvChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {
+function buildEnvChanges(
+  baseline: RepoReport,
+  current: RepoReport,
+): DriftChange[] {
   return [
     compareValues({
       category: "env",
@@ -294,7 +337,7 @@ function buildEnvChanges(baseline: RepoReport, current: RepoReport): DriftChange
       title: "Referenced env key drift",
       baseline: baseline.env.referencedKeys,
       current: current.env.referencedKeys,
-      note: "New env keys can make setup docs and deployment config stale."
+      note: "New env keys can make setup docs and deployment config stale.",
     }),
     compareValues({
       category: "env",
@@ -302,7 +345,7 @@ function buildEnvChanges(baseline: RepoReport, current: RepoReport): DriftChange
       title: "Missing example env key drift",
       baseline: baseline.env.missingExampleKeys,
       current: current.env.missingExampleKeys,
-      note: "Missing examples make onboarding and deployment less reliable."
+      note: "Missing examples make onboarding and deployment less reliable.",
     }),
     compareValues({
       category: "env",
@@ -310,12 +353,15 @@ function buildEnvChanges(baseline: RepoReport, current: RepoReport): DriftChange
       title: "Public env risk drift",
       baseline: baseline.env.publicRiskKeys,
       current: current.env.publicRiskKeys,
-      note: "Secret-like public env names need manual review."
-    })
+      note: "Secret-like public env names need manual review.",
+    }),
   ].filter(isChange);
 }
 
-function buildSecurityChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {
+function buildSecurityChanges(
+  baseline: RepoReport,
+  current: RepoReport,
+): DriftChange[] {
   return [
     compareValues({
       category: "security",
@@ -323,7 +369,7 @@ function buildSecurityChanges(baseline: RepoReport, current: RepoReport): DriftC
       title: "Risky pattern drift",
       baseline: baseline.security.riskyFiles,
       current: current.security.riskyFiles,
-      note: "Risky pattern changes need manual code review."
+      note: "Risky pattern changes need manual code review.",
     }),
     compareValues({
       category: "security",
@@ -331,14 +377,21 @@ function buildSecurityChanges(baseline: RepoReport, current: RepoReport): DriftC
       title: "Security-sensitive file drift",
       baseline: baseline.security.sensitiveFiles,
       current: current.security.sensitiveFiles,
-      note: "Sensitive area changes can make the agent focus map stale."
-    })
+      note: "Sensitive area changes can make the agent focus map stale.",
+    }),
   ].filter(isChange);
 }
 
-function buildFocusChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {
-  const baselineHighFocus = baseline.focusFiles.filter((file) => file.priority === "high").map(focusKey);
-  const currentHighFocus = current.focusFiles.filter((file) => file.priority === "high").map(focusKey);
+function buildFocusChanges(
+  baseline: RepoReport,
+  current: RepoReport,
+): DriftChange[] {
+  const baselineHighFocus = baseline.focusFiles
+    .filter((file) => file.priority === "high")
+    .map(focusKey);
+  const currentHighFocus = current.focusFiles
+    .filter((file) => file.priority === "high")
+    .map(focusKey);
 
   return [
     compareValues({
@@ -347,8 +400,8 @@ function buildFocusChanges(baseline: RepoReport, current: RepoReport): DriftChan
       title: "High-priority focus file drift",
       baseline: baselineHighFocus,
       current: currentHighFocus,
-      note: "New high-priority files should be read before AI edits."
-    })
+      note: "New high-priority files should be read before AI edits.",
+    }),
   ].filter(isChange);
 }
 
@@ -375,7 +428,7 @@ function compareValues(input: {
     title: input.title,
     added,
     removed,
-    note: input.note
+    note: input.note,
   };
 }
 
@@ -384,19 +437,38 @@ function buildRecommendations(changes: DriftChange[]): string[] {
     return ["No drift detected. Existing context appears current."];
   }
 
-  const recommendations = ["Regenerate and read `AI_COMPACT_CONTEXT.md` before new AI edits."];
+  const recommendations = [
+    "Regenerate and read `AI_COMPACT_CONTEXT.md` before new AI edits.",
+  ];
 
-  if (changes.some((change) => change.category === "auth" || change.category === "routes")) {
-    recommendations.push("Review auth, roles, route protection, and admin/API boundaries.");
+  if (
+    changes.some(
+      (change) => change.category === "auth" || change.category === "routes",
+    )
+  ) {
+    recommendations.push(
+      "Review auth, roles, route protection, and admin/API boundaries.",
+    );
   }
-  if (changes.some((change) => change.category === "server-actions" || change.category === "database")) {
-    recommendations.push("Review data writes, migrations, schema changes, and tenant/account scope.");
+  if (
+    changes.some(
+      (change) =>
+        change.category === "server-actions" || change.category === "database",
+    )
+  ) {
+    recommendations.push(
+      "Review data writes, migrations, schema changes, and tenant/account scope.",
+    );
   }
   if (changes.some((change) => change.category === "env")) {
-    recommendations.push("Update env examples and deployment config before release.");
+    recommendations.push(
+      "Update env examples and deployment config before release.",
+    );
   }
   if (changes.some((change) => change.category === "focus")) {
-    recommendations.push("Read new high-priority focus files before editing related flows.");
+    recommendations.push(
+      "Read new high-priority focus files before editing related flows.",
+    );
   }
 
   return uniqueSorted(recommendations);
@@ -415,7 +487,7 @@ function renderDriftChanges(changes: DriftChange[]): string[] {
     `- Added: ${renderLimitedInlineList(change.added)}`,
     `- Removed: ${renderLimitedInlineList(change.removed)}`,
     `- Note: ${change.note}`,
-    ""
+    "",
   ]);
 }
 
@@ -424,16 +496,22 @@ function renderExecutiveSummary(report: DriftReport): string[] {
     return ["- No drift detected."];
   }
 
-  const highChanges = report.changes.filter((change) => change.severity === "high");
-  const mediumChanges = report.changes.filter((change) => change.severity === "medium");
+  const highChanges = report.changes.filter(
+    (change) => change.severity === "high",
+  );
+  const mediumChanges = report.changes.filter(
+    (change) => change.severity === "medium",
+  );
   const lines = [
     `- ${report.summary.high} high, ${report.summary.medium} medium, ${report.summary.low} low drift groups detected.`,
     `- Highest-risk groups: ${renderChangeTitles(highChanges.slice(0, 5))}.`,
-    "- Full added/removed lists are available in `DRIFT_REPORT.json`."
+    "- Full added/removed lists are available in `DRIFT_REPORT.json`.",
   ];
 
   if (mediumChanges.length > 0) {
-    lines.push(`- Medium-risk groups: ${renderChangeTitles(mediumChanges.slice(0, 5))}.`);
+    lines.push(
+      `- Medium-risk groups: ${renderChangeTitles(mediumChanges.slice(0, 5))}.`,
+    );
   }
 
   return lines;
@@ -458,7 +536,8 @@ function renderLimitedInlineList(items: string[]): string {
 
   const visibleItems = items.slice(0, MARKDOWN_ITEM_LIMIT);
   const remaining = items.length - visibleItems.length;
-  const suffix = remaining > 0 ? `, and ${remaining} more in \`DRIFT_REPORT.json\`` : "";
+  const suffix =
+    remaining > 0 ? `, and ${remaining} more in \`DRIFT_REPORT.json\`` : "";
 
   return `${renderInlineList(visibleItems)}${suffix}`;
 }

@@ -46,7 +46,10 @@ export async function runClean(options: CleanOptions): Promise<{
   return { targetPath, removed: true, planned };
 }
 
-export function ensureSafeDeletePath(rootPath: string, targetPath: string): void {
+export function ensureSafeDeletePath(
+  rootPath: string,
+  targetPath: string,
+): void {
   const rel = relative(rootPath, targetPath);
 
   if (targetPath === "/" || rel === "" || rel === ".") {

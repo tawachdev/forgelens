@@ -28,7 +28,7 @@ export async function runBaselineSave(options: BaselineSaveOptions): Promise<{
     root: rootAbsolute,
     outDir: options.outDir,
     format: "all",
-    verbose: false
+    verbose: false,
   });
 
   await writeText(baselinePath, `${JSON.stringify(result.report, null, 2)}\n`);
@@ -36,18 +36,28 @@ export async function runBaselineSave(options: BaselineSaveOptions): Promise<{
   return {
     report: result.report,
     files: result.files,
-    baselinePath
+    baselinePath,
   };
 }
 
-export function baselinePathFor(root: string, outDir: string, name: string): string {
-  return join(resolve(root, outDir), "baselines", `${normalizeBaselineName(name)}.json`);
+export function baselinePathFor(
+  root: string,
+  outDir: string,
+  name: string,
+): string {
+  return join(
+    resolve(root, outDir),
+    "baselines",
+    `${normalizeBaselineName(name)}.json`,
+  );
 }
 
 function normalizeBaselineName(name: string): string {
   const trimmed = name.trim();
   if (!/^[a-zA-Z0-9._-]+$/.test(trimmed)) {
-    throw new Error("Baseline name may contain only letters, numbers, dots, underscores, and dashes.");
+    throw new Error(
+      "Baseline name may contain only letters, numbers, dots, underscores, and dashes.",
+    );
   }
 
   return basename(trimmed, ".json");
@@ -55,5 +65,9 @@ function normalizeBaselineName(name: string): string {
 
 function isPathInsideRoot(root: string, target: string): boolean {
   const pathFromRoot = relative(root, target);
-  return pathFromRoot !== "" && !pathFromRoot.startsWith("..") && !isAbsolute(pathFromRoot);
+  return (
+    pathFromRoot !== "" &&
+    !pathFromRoot.startsWith("..") &&
+    !isAbsolute(pathFromRoot)
+  );
 }

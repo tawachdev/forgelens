@@ -13,10 +13,23 @@ import { writeJsonReport } from "./writers/json.js";
 import { writeMarkdownReports } from "./writers/markdown.js";
 import type { GeneratedReportFiles, RepoReport, ScanOptions } from "./types.js";
 
-export async function scanRepo(root: string, outDir: string): Promise<RepoReport> {
+export async function scanRepo(
+  root: string,
+  outDir: string,
+): Promise<RepoReport> {
   const absoluteRoot = resolve(root);
 
-  const [project, routes, database, auth, serverActions, security, env, uiUx, performance] = await Promise.all([
+  const [
+    project,
+    routes,
+    database,
+    auth,
+    serverActions,
+    security,
+    env,
+    uiUx,
+    performance,
+  ] = await Promise.all([
     detectProject(absoluteRoot),
     detectRoutes(absoluteRoot, outDir),
     detectDatabase(absoluteRoot, outDir),
@@ -25,7 +38,7 @@ export async function scanRepo(root: string, outDir: string): Promise<RepoReport
     detectSecurity(absoluteRoot, outDir),
     detectEnvSafety(absoluteRoot, outDir),
     detectUiUx(absoluteRoot, outDir),
-    detectPerformanceRisks(absoluteRoot, outDir)
+    detectPerformanceRisks(absoluteRoot, outDir),
   ]);
 
   const reportWithoutFocus = {
@@ -39,13 +52,13 @@ export async function scanRepo(root: string, outDir: string): Promise<RepoReport
     security,
     env,
     uiUx,
-    performance
+    performance,
   };
 
   return {
     ...reportWithoutFocus,
     focus: buildFocusMap(reportWithoutFocus),
-    focusFiles: buildFocusFileScores(reportWithoutFocus)
+    focusFiles: buildFocusFileScores(reportWithoutFocus),
   };
 }
 
@@ -72,14 +85,14 @@ export async function runScan(options: ScanOptions): Promise<{
   return {
     report,
     files,
-    outDirAbsolute
+    outDirAbsolute,
   };
 }
 
 async function writeReports(
   report: RepoReport,
   outDirAbsolute: string,
-  format: ScanOptions["format"]
+  format: ScanOptions["format"],
 ): Promise<GeneratedReportFiles> {
   if (format === "markdown") {
     return writeMarkdownReports(report, outDirAbsolute);
@@ -90,11 +103,15 @@ async function writeReports(
 
   return {
     ...(await writeMarkdownReports(report, outDirAbsolute)),
-    ...(await writeJsonReport(report, outDirAbsolute))
+    ...(await writeJsonReport(report, outDirAbsolute)),
   };
 }
 
 function isPathInsideRoot(root: string, target: string): boolean {
   const pathFromRoot = relative(root, target);
-  return pathFromRoot !== "" && !pathFromRoot.startsWith("..") && !isAbsolute(pathFromRoot);
+  return (
+    pathFromRoot !== "" &&
+    !pathFromRoot.startsWith("..") &&
+    !isAbsolute(pathFromRoot)
+  );
 }
