@@ -38,6 +38,10 @@
     "type": "git",
     "url": "git+https://github.com/tawachdev/forgelens.git"
   },
+  "homepage": "https://github.com/tawachdev/forgelens#readme",
+  "bugs": {
+    "url": "https://github.com/tawachdev/forgelens/issues"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18.18.0"
