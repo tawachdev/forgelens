@@ -17,8 +17,8 @@ async function runNpmExec(args, cwd) {
   }
 }
 
-async function runBinary(binPath, args) {
-  const { stdout, stderr } = await execFileAsync(binPath, args);
+async function runNodeScript(scriptPath, args, cwd) {
+  const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath, ...args], { cwd });
   if (stdout) {
     process.stdout.write(stdout);
   }
@@ -50,10 +50,9 @@ async function main() {
     await runNpmExec(["init", "-y"], smokeRoot);
     await runNpmExec(["install", "--no-save", tarballPath], smokeRoot);
 
-    const binName = process.platform === "win32" ? "forgelens.cmd" : "forgelens";
-    const binPath = join(smokeRoot, "node_modules", ".bin", binName);
+    const cliEntrypoint = join(smokeRoot, "node_modules", "forgelens", "dist", "cli.js");
 
-    const versionOutput = (await runBinary(binPath, ["--version"])).trim();
+    const versionOutput = (await runNodeScript(cliEntrypoint, ["--version"], process.cwd())).trim();
     if (versionOutput !== expectedVersion) {
       throw new Error(`Expected tarball CLI version ${expectedVersion}, got ${versionOutput}`);
     }
@@ -62,15 +61,11 @@ async function main() {
     const outDir = ".tmp/ci-smoke";
     await rm(join(fixtureRoot, outDir), { recursive: true, force: true });
 
-    await runBinary(binPath, [
-      "scan",
-      "--root",
-      fixtureRoot,
-      "--out",
-      outDir,
-      "--format",
-      "json"
-    ]);
+    await runNodeScript(
+      cliEntrypoint,
+      ["scan", "--root", fixtureRoot, "--out", outDir, "--format", "json"],
+      process.cwd()
+    );
 
     await access(join(fixtureRoot, outDir, "REPO_REPORT.json"));
   } finally {
