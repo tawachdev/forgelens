@@ -19,7 +19,8 @@
     "dev": "tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+    "release-check": "pnpm typecheck && pnpm test && pnpm build && npm pack --dry-run",
+    "prepublishOnly": "pnpm release-check"
   },
   "keywords": [
     "ai",
