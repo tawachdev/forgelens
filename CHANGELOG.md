@@ -4,6 +4,16 @@
 
 ### Added
 
+- None yet.
+
+### Changed
+
+- None yet.
+
+## 0.2.0 - 2026-05-26
+
+### Added
+
 - `AI_FOCUS_MAP.md` to rank the highest-value files and areas before editing.
 - `AI_COMPACT_CONTEXT.md` for context-limit situations.
 - `ENV_REPORT.md` for env file names, referenced env key names, missing example keys, and public env risk hints without printing secret values.

@@ -9,7 +9,7 @@ export interface ScanOptions {
 }
 
 export interface ProjectInfo {
-  framework: "nextjs" | "unknown";
+  framework: "nextjs" | "vite" | "unknown";
   language: "typescript" | "javascript" | "unknown";
   packageManager: "pnpm" | "npm" | "yarn" | "bun" | "unknown";
   scripts: Record<string, string>;

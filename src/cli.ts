@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name("forgelens")
   .description("Local-first CLI for repo context scanning for AI coding agents")
-  .version("0.1.1");
+  .version("0.2.0");
 
 program
   .command("scan")

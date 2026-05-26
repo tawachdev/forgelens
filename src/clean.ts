@@ -1,5 +1,5 @@
 import { readdir, rm } from "node:fs/promises";
-import { resolve } from "node:path";
+import { isAbsolute, relative, resolve } from "node:path";
 import readline from "node:readline/promises";
 import { stdin, stdout } from "node:process";
 
@@ -47,11 +47,13 @@ export async function runClean(options: CleanOptions): Promise<{
 }
 
 export function ensureSafeDeletePath(rootPath: string, targetPath: string): void {
-  if (targetPath === "/" || targetPath === rootPath) {
+  const rel = relative(rootPath, targetPath);
+
+  if (targetPath === "/" || rel === "" || rel === ".") {
     throw new Error("Refusing to delete root path.");
   }
 
-  if (!targetPath.startsWith(`${rootPath}/`)) {
+  if (rel.startsWith("..") || isAbsolute(rel)) {
     throw new Error("Refusing to delete outside the selected root folder.");
   }
 }

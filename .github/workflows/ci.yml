@@ -19,8 +19,15 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,6 +58,12 @@ jobs:
 
       - name: NPM package dry run
         run: npm pack --dry-run
+
+      - name: NPM tarball pack
+        run: npm pack --json > npm-pack.json
+
+      - name: CLI tarball smoke test
+        run: node scripts/ci-smoke-tarball.mjs
 
       - name: Diff whitespace check
         run: git diff --check

@@ -6,3 +6,5 @@ coverage
 .tmp/
 .forgelens/
 site/.astro/
+site/dist/
+site/node_modules/

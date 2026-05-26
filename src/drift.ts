@@ -179,12 +179,14 @@ function parseGitRange(range: string): { baselineRef: string; currentRef: string
 }
 
 async function exportGitTree(root: string, ref: string, outDir: string): Promise<void> {
+  await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
-  const archivePath = join(outDir, "repo.tar");
-  await execFileAsync("git", ["-C", root, "archive", "--format=tar", `--output=${archivePath}`, ref]);
-  await execFileAsync("tar", ["-xf", archivePath, "-C", outDir]);
-  await rm(archivePath, { force: true });
+  await execFileAsync("git", ["clone", "--quiet", "--no-checkout", root, outDir]);
+  await execFileAsync("git", ["-C", outDir, "checkout", "--detach", "--quiet", ref]);
+
+  // Keep scan fast and avoid reading git history metadata.
+  await rm(join(outDir, ".git"), { recursive: true, force: true });
 }
 
 function buildAuthChanges(baseline: RepoReport, current: RepoReport): DriftChange[] {

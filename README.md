@@ -115,6 +115,21 @@ forgelens clean --yes
 forgelens prompt codex
 ```
 
+## Sample Output
+
+```text
+$ forgelens scan --format all
+ForgeLens scan complete: /path/to/repo/.forgelens
+- FORGE_CONTEXT: /path/to/repo/.forgelens/FORGE_CONTEXT.md
+- ROUTES_MAP: /path/to/repo/.forgelens/ROUTES_MAP.md
+- DATABASE_MAP: /path/to/repo/.forgelens/DATABASE_MAP.md
+- SECURITY_RULES: /path/to/repo/.forgelens/SECURITY_RULES.md
+- ENV_REPORT: /path/to/repo/.forgelens/ENV_REPORT.md
+- UI_UX_REPORT: /path/to/repo/.forgelens/UI_UX_REPORT.md
+- PERFORMANCE_RISK_REPORT: /path/to/repo/.forgelens/PERFORMANCE_RISK_REPORT.md
+- REPO_REPORT_JSON: /path/to/repo/.forgelens/REPO_REPORT.json
+```
+
 ## Developer Shortcuts
 
 ```text
@@ -129,6 +144,8 @@ make release-check  Run all release checks
 
 - Live product/docs website: [forgelens-lyart.vercel.app](https://forgelens-lyart.vercel.app)
 - GitHub launch checklist: [docs/GITHUB_LAUNCH_CHECKLIST.md](docs/GITHUB_LAUNCH_CHECKLIST.md)
+- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Security policy: [SECURITY.md](SECURITY.md)
 
 ## Safety Notes
 

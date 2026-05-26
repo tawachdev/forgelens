@@ -74,6 +74,22 @@ describe("clean", () => {
       await rm(root, { recursive: true, force: true });
     }
   });
+
+  it("rejects clean target paths outside selected root", async () => {
+    const root = await mkdtemp(join(tmpdir(), "forgelens-clean-safety-"));
+
+    try {
+      await expect(
+        runClean({
+          root,
+          outDir: "../outside-root",
+          yes: true
+        })
+      ).rejects.toThrow("Refusing to delete outside the selected root folder.");
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("prompt codex", () => {

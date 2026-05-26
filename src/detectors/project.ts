@@ -19,7 +19,9 @@ export async function detectProject(root: string): Promise<ProjectInfo> {
 
   const framework: ProjectInfo["framework"] = allDeps.has("next")
     ? "nextjs"
-    : "unknown";
+    : allDeps.has("vite")
+      ? "vite"
+      : "unknown";
 
   const language = (await fileExists(join(root, "tsconfig.json")))
     ? "typescript"

@@ -24,6 +24,11 @@ describe("provider detection", () => {
     expect(report.database.providers.some((provider) => provider.name === "postgres-client")).toBe(true);
   });
 
+  it("detects Vite framework projects", async () => {
+    const report = await scanRepo(fixturePath("vite"), ".forgelens");
+    expect(report.project.framework).toBe("vite");
+  });
+
   it("detects auth providers across stacks", async () => {
     const clerk = await scanRepo(fixturePath("clerk"), ".forgelens");
     const nextAuth = await scanRepo(fixturePath("nextauth"), ".forgelens");

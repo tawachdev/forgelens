@@ -1,6 +1,6 @@
 {
   "name": "forgelens",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Provider-agnostic local-first CLI that scans repositories and generates clean AI coding context files with evidence and confidence.",
   "type": "module",
   "bin": {
