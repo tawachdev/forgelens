@@ -11,7 +11,6 @@ Please do not open public GitHub issues for security reports.
 Report privately using one of these options:
 
 - GitHub Security Advisories (preferred)
-- Direct email to the maintainer (if advisory flow is not available)
 
 Include:
 
