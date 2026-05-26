@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "[check] pnpm lint"
+pnpm lint
+
+echo "[check] pnpm format:check"
+pnpm format:check
+
 echo "[check] pnpm typecheck"
 pnpm typecheck
 
