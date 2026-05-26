@@ -94,11 +94,19 @@ function extractReferencedEnvKeys(text: string): string[] {
   const keys: string[] = [];
   const dotPattern = /process\.env\.([A-Z0-9_]+)/g;
   const bracketPattern = /process\.env\[['"]([A-Z0-9_]+)['"]\]/g;
+  const viteDotPattern = /import\.meta\.env\.([A-Z0-9_]+)/g;
+  const viteBracketPattern = /import\.meta\.env\[['"]([A-Z0-9_]+)['"]\]/g;
 
   for (const match of text.matchAll(dotPattern)) {
     keys.push(match[1]);
   }
   for (const match of text.matchAll(bracketPattern)) {
+    keys.push(match[1]);
+  }
+  for (const match of text.matchAll(viteDotPattern)) {
+    keys.push(match[1]);
+  }
+  for (const match of text.matchAll(viteBracketPattern)) {
     keys.push(match[1]);
   }
 
@@ -132,7 +140,7 @@ function buildEnvNotes(
   const notes = [
     `env files found: ${envFiles.length}`,
     `example env files found: ${exampleFiles.length}`,
-    `process.env keys referenced: ${referencedKeys.length}`
+    `env keys referenced in code: ${referencedKeys.length}`
   ];
 
   if (missingExampleKeys.length > 0) {
