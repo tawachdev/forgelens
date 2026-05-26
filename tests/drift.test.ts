@@ -9,6 +9,10 @@ import { renderDriftReport, runDrift, runGitDrift } from "../src/drift.js";
 import { scanRepo } from "../src/scan.js";
 import type { RepoReport } from "../src/types.js";
 
+function normalizePathForAssert(value: string): string {
+  return value.replaceAll("\\", "/");
+}
+
 const createdDirs: string[] = [];
 const execFileAsync = promisify(execFile);
 
@@ -73,7 +77,7 @@ describe("drift", () => {
       name: "main"
     });
 
-    expect(result.baselinePath).toContain("baselines/main.json");
+    expect(normalizePathForAssert(result.baselinePath)).toContain("baselines/main.json");
     expect(result.report.routes.length).toBeGreaterThan(0);
   });
 

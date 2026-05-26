@@ -6,6 +6,10 @@ import { runClean } from "../src/clean.js";
 import { inspectRepoSafety } from "../src/doctor.js";
 import { buildCodexPrompt } from "../src/prompt.js";
 
+function normalizePathForAssert(value: string): string {
+  return value.replaceAll("\\", "/");
+}
+
 async function exists(path: string): Promise<boolean> {
   try {
     await access(path);
@@ -66,8 +70,9 @@ describe("clean", () => {
       });
 
       expect(result.removed).toBe(true);
-      expect(logs.join("\n")).toContain("Planned removal:");
-      expect(logs.join("\n")).toContain(generatedFile);
+      const logText = logs.join("\n");
+      expect(logText).toContain("Planned removal:");
+      expect(normalizePathForAssert(logText)).toContain(normalizePathForAssert(generatedFile));
       expect(await exists(outDir)).toBe(false);
       expect(await exists(keepFile)).toBe(true);
     } finally {
