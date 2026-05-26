@@ -12,12 +12,12 @@
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-black" />
   <img alt="Local-first" src="https://img.shields.io/badge/local--first-yes-1f6feb" />
   <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-2da44e" />
-  <img alt="Codex" src="https://img.shields.io/badge/Codex-supported-111111" />
-  <img alt="Claude Code" src="https://img.shields.io/badge/Claude%20Code-supported-111111" />
-  <img alt="Cursor" src="https://img.shields.io/badge/Cursor-supported-111111" />
-  <img alt="Copilot" src="https://img.shields.io/badge/Copilot-supported-111111" />
-  <img alt="Gemini CLI" src="https://img.shields.io/badge/Gemini%20CLI-supported-111111" />
-  <img alt="OpenCode" src="https://img.shields.io/badge/OpenCode-supported-111111" />
+  <img alt="Codex" src="https://img.shields.io/badge/Codex-usable%20with-111111" />
+  <img alt="Claude Code" src="https://img.shields.io/badge/Claude%20Code-usable%20with-111111" />
+  <img alt="Cursor" src="https://img.shields.io/badge/Cursor-usable%20with-111111" />
+  <img alt="Copilot" src="https://img.shields.io/badge/Copilot-usable%20with-111111" />
+  <img alt="Gemini CLI" src="https://img.shields.io/badge/Gemini%20CLI-usable%20with-111111" />
+  <img alt="OpenCode" src="https://img.shields.io/badge/OpenCode-usable%20with-111111" />
 </p>
 
 ## Why ForgeLens?
@@ -78,7 +78,7 @@ flowchart TD
 
 ## Works With
 
-ForgeLens is built for Codex, Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, and other AI coding agents.
+ForgeLens is usable with Codex, Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, and other AI coding agents.
 
 ## Install
 
@@ -115,6 +115,8 @@ forgelens clean --yes
 forgelens prompt codex
 ```
 
+Note: prompt helpers are currently available for Codex only.
+
 ## Sample Output
 
 ```text
@@ -133,7 +135,7 @@ ForgeLens scan complete: /path/to/repo/.forgelens
 ## Developer Shortcuts
 
 ```text
-make check          Run typecheck, tests, build, and diff check
+make check          Run lint, format check, typecheck, tests, build, and diff check
 make scan           Generate ForgeLens reports
 make baseline       Save current ForgeLens baseline
 make drift          Compare against saved baseline
