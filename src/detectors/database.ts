@@ -25,10 +25,21 @@ export async function detectDatabase(root: string, outDir: string): Promise<Data
     pkg
   ] = await Promise.all([
     fg(["prisma/**/*.prisma"], { cwd: root, ignore }),
-    fg(["drizzle/**/*", "drizzle.config.@(ts|js|mjs|cjs)", "db/drizzle/**/*"], {
+    fg(
+      [
+        "drizzle/**/*",
+        "drizzle.config.@(ts|js|mjs|cjs)",
+        "db/drizzle/**/*",
+        "db/schema.@(ts|tsx|js|jsx|mjs|cjs)",
+        "src/db/schema.@(ts|tsx|js|jsx|mjs|cjs)",
+        "server/db/schema.@(ts|tsx|js|jsx|mjs|cjs)",
+        "lib/db/schema.@(ts|tsx|js|jsx|mjs|cjs)"
+      ],
+      {
       cwd: root,
       ignore
-    }),
+      }
+    ),
     fg(["ormconfig.@(ts|js|json)", "src/entity/**/*", "**/*.entity.@(ts|js)"], {
       cwd: root,
       ignore
