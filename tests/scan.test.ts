@@ -180,6 +180,22 @@ describe("runScan", () => {
     expect(result.files.AI_FOCUS_MAP).toBeDefined();
     expect(result.files.REPO_REPORT_JSON).toBeDefined();
   });
+
+  it("extracts Vite import.meta.env keys in env report", async () => {
+    const fixtureRoot = join(process.cwd(), "tests/fixtures/stacks/vite");
+    const { outDir } = createFixtureOutDir(fixtureRoot, "forgelens-vite-env-test");
+
+    const result = await runScan({
+      root: fixtureRoot,
+      outDir,
+      format: "markdown",
+      verbose: false
+    });
+
+    const envReport = await readFile(result.files.ENV_REPORT, "utf8");
+    expect(envReport).toContain("VITE_API_URL");
+    expect(envReport).toContain("VITE_FEATURE_FLAG");
+  });
 });
 
 function createFixtureOutDir(fixtureRoot: string, prefix: string): { outDir: string } {
