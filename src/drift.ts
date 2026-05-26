@@ -429,7 +429,7 @@ function renderExecutiveSummary(report: DriftReport): string[] {
   const lines = [
     `- ${report.summary.high} high, ${report.summary.medium} medium, ${report.summary.low} low drift groups detected.`,
     `- Highest-risk groups: ${renderChangeTitles(highChanges.slice(0, 5))}.`,
-    `- Full added/removed lists are available in \`DRIFT_REPORT.json\`.`
+    "- Full added/removed lists are available in `DRIFT_REPORT.json`."
   ];
 
   if (mediumChanges.length > 0) {
