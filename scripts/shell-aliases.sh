@@ -5,6 +5,7 @@
 
 alias fl='pnpm dev'
 alias fls='pnpm scan'
+alias flq='pnpm quick'
 alias flu='pnpm ui'
 alias flh='pnpm health'
 alias flc='pnpm clean'

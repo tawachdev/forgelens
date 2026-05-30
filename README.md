@@ -41,9 +41,10 @@ ForgeLens solves this with a local-first workflow:
 
 ```bash
 npx forgelens scan
-npx forgelens baseline save --name current
-npx forgelens drift --from current
-npx forgelens drift --git main..HEAD
+npx forgelens quick --root . --out .forgelens
+npx forgelens snapshot save --name current
+npx forgelens compare --from current --out .forgelens
+npx forgelens compare --git main..HEAD --out .forgelens
 ```
 
 ## What ForgeLens Generates
@@ -108,6 +109,7 @@ forgelens scan
 
 ```bash
 forgelens scan
+forgelens quick
 forgelens ux
 forgelens check
 forgelens snapshot save --name main
@@ -133,6 +135,7 @@ Use these when developing locally:
 
 ```bash
 pnpm ui
+pnpm quick
 pnpm health
 pnpm save
 pnpm diff
@@ -146,6 +149,7 @@ Very short aliases are also available:
 pnpm s    # scan
 pnpm u    # ux
 pnpm ck   # check
+pnpm qk   # quick
 pnpm cl   # clear
 pnpm sn   # snapshot save
 pnpm cmp  # compare
