@@ -108,14 +108,55 @@ forgelens scan
 
 ```bash
 forgelens scan
-forgelens doctor
-forgelens baseline save
-forgelens drift
-forgelens clean --yes
-forgelens prompt codex
+forgelens ux
+forgelens check
+forgelens snapshot save --name main
+forgelens compare --from latest --out .forgelens
+forgelens clear --yes
+forgelens prompt
 ```
 
-Note: prompt helpers are currently available for Codex only.
+Legacy aliases still work:
+
+```bash
+forgelens ui-ux        # same as: forgelens ux
+forgelens doctor       # same as: forgelens check
+forgelens baseline     # same as: forgelens snapshot
+forgelens drift        # same as: forgelens compare
+forgelens clean        # same as: forgelens clear
+forgelens prompt codex # legacy prompt alias
+```
+
+## Easy PNPM Commands
+
+Use these when developing locally:
+
+```bash
+pnpm ui
+pnpm health
+pnpm save
+pnpm diff
+pnpm clean
+pnpm context
+```
+
+Very short aliases are also available:
+
+```bash
+pnpm s    # scan
+pnpm u    # ux
+pnpm ck   # check
+pnpm cl   # clear
+pnpm sn   # snapshot save
+pnpm cmp  # compare
+pnpm pp   # prompt
+```
+
+Optional shell aliases:
+
+```bash
+source ./scripts/shell-aliases.sh
+```
 
 ## Sample Output
 
@@ -135,10 +176,15 @@ ForgeLens scan complete: /path/to/repo/.forgelens
 ## Developer Shortcuts
 
 ```text
-make check          Run lint, format check, typecheck, tests, build, and diff check
-make scan           Generate ForgeLens reports
-make baseline       Save current ForgeLens baseline
-make drift          Compare against saved baseline
+make help           Show all shortcuts
+make ui             Generate UI/UX report
+make health         Run safety/readiness check
+make save           Save current snapshot as baseline
+make diff           Compare latest scan with baseline
+make clean          Remove generated output folder
+make context        Print Codex context prompt
+make quick          Fast flow: health + ui
+make hard           Full flow: scan + save + diff
 make release-check  Run all release checks
 ```
 
