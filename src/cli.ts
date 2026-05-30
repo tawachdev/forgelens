@@ -86,10 +86,7 @@ program
   .option("--out <path>", "output folder (inside root)", ".forgelens")
   .option("--root <path>", "repository root path", ".")
   .option("--verbose", "print scan details", false)
-  .addHelpText(
-    "after",
-    "\nExamples:\n  forgelens ux\n  forgelens ui-ux",
-  )
+  .addHelpText("after", "\nExamples:\n  forgelens ux\n  forgelens ui-ux")
   .action(async (cmdOptions: UiUxCommandOptions) => {
     const options: ScanOptions = {
       outDir: cmdOptions.out,
@@ -119,10 +116,7 @@ program
   .description("Check scan safety/readiness without writing any files")
   .option("--root <path>", "repository root path", ".")
   .option("--out <path>", "output folder that scan would use", ".forgelens")
-  .addHelpText(
-    "after",
-    "\nExamples:\n  forgelens check\n  forgelens doctor",
-  )
+  .addHelpText("after", "\nExamples:\n  forgelens check\n  forgelens doctor")
   .action(async (cmdOptions: { root: string; out: string }) => {
     try {
       const report = await inspectRepoSafety({
@@ -266,7 +260,8 @@ program
           }
         }
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error";
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
         console.error(`ForgeLens compare failed: ${message}`);
         process.exitCode = 1;
       }
