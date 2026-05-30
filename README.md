@@ -191,6 +191,7 @@ make release-check  Run all release checks
 ## Docs
 
 - Live product/docs website: [forgelens-lyart.vercel.app](https://forgelens-lyart.vercel.app)
+- v0.3 roadmap: [docs/V0_3_ROADMAP.md](docs/V0_3_ROADMAP.md)
 - GitHub launch checklist: [docs/GITHUB_LAUNCH_CHECKLIST.md](docs/GITHUB_LAUNCH_CHECKLIST.md)
 - Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security policy: [SECURITY.md](SECURITY.md)
