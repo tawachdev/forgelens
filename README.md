@@ -47,6 +47,24 @@ npx forgelens compare --from current --out .forgelens
 npx forgelens compare --git main..HEAD --out .forgelens
 ```
 
+## Daily Flow
+
+Use this when you start coding with AI:
+
+```bash
+forgelens quick --root . --out .forgelens
+forgelens snapshot save --name latest
+forgelens compare --from latest --out .forgelens
+forgelens prompt --out .forgelens
+```
+
+What this gives you:
+- Quick safety check before changes.
+- Fresh UI/UX report path.
+- New baseline snapshot.
+- Drift report against last baseline.
+- Prompt text ready for your coding agent.
+
 ## What ForgeLens Generates
 
 ```text
@@ -192,10 +210,35 @@ make hard           Full flow: scan + save + diff
 make release-check  Run all release checks
 ```
 
+## CI Failure Quick-Fix
+
+If GitHub CI fails, use this sequence:
+
+```bash
+gh run list --workflow CI --limit 5
+gh run view <run-id> --log-failed
+```
+
+Most common fix in this repo:
+
+```bash
+pnpm format:check
+pnpm exec biome format --write src/cli.ts
+pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build
+```
+
+Then push and watch CI:
+
+```bash
+git push origin main
+gh run watch <run-id> --exit-status
+```
+
 ## Docs
 
 - Live product/docs website: [forgelens-lyart.vercel.app](https://forgelens-lyart.vercel.app)
 - v0.3 roadmap: [docs/V0_3_ROADMAP.md](docs/V0_3_ROADMAP.md)
+- CI quick-fix: [docs/CI_QUICK_FIX.md](docs/CI_QUICK_FIX.md)
 - GitHub launch checklist: [docs/GITHUB_LAUNCH_CHECKLIST.md](docs/GITHUB_LAUNCH_CHECKLIST.md)
 - Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security policy: [SECURITY.md](SECURITY.md)
