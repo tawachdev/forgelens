@@ -25,6 +25,12 @@ type UiUxCommandOptions = {
   verbose: boolean;
 };
 
+type QuickCommandOptions = {
+  out: string;
+  root: string;
+  verbose: boolean;
+};
+
 type ScanResult = Awaited<ReturnType<typeof runScan>>;
 
 function logScanSummary(result: ScanResult): void {
@@ -36,6 +42,10 @@ function logScanSummary(result: ScanResult): void {
 program
   .name("forgelens")
   .description("Local-first CLI for repo context scanning for AI coding agents")
+  .addHelpText(
+    "after",
+    "\nDaily flow:\n  forgelens quick --root . --out .forgelens\n\nPrimary commands:\n  scan, check, ux, snapshot save, compare, clear, prompt\n\nLegacy aliases still supported:\n  doctor, ui-ux, baseline, drift, clean, prompt codex",
+  )
   .version("0.2.0");
 
 program
@@ -106,6 +116,53 @@ program
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       console.error(`ForgeLens ux failed: ${message}`);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command("quick")
+  .description("Run check and generate the UI/UX report path")
+  .option("--out <path>", "output folder (inside root)", ".forgelens")
+  .option("--root <path>", "repository root path", ".")
+  .option("--verbose", "print scan details", false)
+  .addHelpText(
+    "after",
+    "\nExamples:\n  forgelens quick\n  forgelens quick --root . --out .forgelens",
+  )
+  .action(async (cmdOptions: QuickCommandOptions) => {
+    try {
+      const safety = await inspectRepoSafety({
+        root: cmdOptions.root,
+        outDir: cmdOptions.out,
+      });
+      console.log(renderDoctorReport(safety));
+
+      if (!safety.rootExists) {
+        throw new Error("Root path does not exist.");
+      }
+
+      if (!safety.outputPathValid) {
+        throw new Error(
+          "Output folder path is not valid. Choose an output folder inside the selected root.",
+        );
+      }
+
+      const result = await runScan({
+        outDir: cmdOptions.out,
+        root: cmdOptions.root,
+        format: "all",
+        verbose: Boolean(cmdOptions.verbose),
+      });
+
+      if (cmdOptions.verbose) {
+        logScanSummary(result);
+      }
+
+      console.log(`ForgeLens UI/UX report: ${result.files.UI_UX_REPORT}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error(`ForgeLens quick failed: ${message}`);
       process.exitCode = 1;
     }
   });
